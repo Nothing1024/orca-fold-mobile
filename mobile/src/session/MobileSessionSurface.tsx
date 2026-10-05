@@ -1,23 +1,25 @@
 import { Pressable, View } from 'react-native'
 import { useState } from 'react'
+import { HostScreen } from '../host-screen/HostScreen'
 import { styles } from './mobile-session-styles'
 import type { MobileSessionController } from './use-mobile-session-controller'
 import { MobileSessionContentRow } from './MobileSessionContentRow'
 import { MobileSessionHeader } from './MobileSessionHeader'
-import { MobileSessionRail } from './MobileSessionRail'
 import { MobileSessionSheets } from './MobileSessionSheets'
+import { usePublishMobileSessionNav } from './use-publish-mobile-session-nav'
 
 export function MobileSessionSurface({ controller }: { controller: MobileSessionController }) {
-  const { setMobileSessionRootRef, isWideLayout } = controller
-  const [showCompactRail, setShowCompactRail] = useState(false)
+  const { setMobileSessionRootRef, isWideLayout, hostId } = controller
+  const [showNavDrawer, setShowNavDrawer] = useState(false)
+  usePublishMobileSessionNav(controller)
+  const closeNavDrawer = () => setShowNavDrawer(false)
   return (
     <View ref={setMobileSessionRootRef} style={styles.container}>
       <View style={styles.kavInner}>
         {isWideLayout ? (
           <View style={styles.sessionWorkspaceFrame}>
-            <MobileSessionRail controller={controller} />
             <View style={styles.sessionWorkspaceContent}>
-              {/* Content-row host (KTD2): on wide, content shares this row with the docked panel as the flex-1 left child. */}
+              {/* The host layout already shows the one workspace nav. This pane is the session. */}
               <MobileSessionContentRow controller={controller} />
             </View>
           </View>
@@ -25,21 +27,25 @@ export function MobileSessionSurface({ controller }: { controller: MobileSession
           <>
             <MobileSessionHeader
               controller={controller}
-              onOpenSessionRail={() => setShowCompactRail(true)}
+              onOpenSessionRail={() => setShowNavDrawer(true)}
             />
             <MobileSessionContentRow controller={controller} />
-            {showCompactRail ? (
+            {showNavDrawer ? (
               <>
                 <Pressable
                   style={styles.sessionRailBackdrop}
-                  onPress={() => setShowCompactRail(false)}
+                  onPress={closeNavDrawer}
                   accessibilityLabel="Close workspace and sessions"
                 />
                 <View style={styles.sessionRailOverlay}>
-                  <MobileSessionRail
-                    controller={controller}
-                    onSessionSelected={() => setShowCompactRail(false)}
-                  />
+                  <View style={styles.sessionNavDrawer}>
+                    <HostScreen
+                      embedded
+                      hostId={hostId}
+                      onHideSidebar={closeNavDrawer}
+                      onWorkspaceActivated={closeNavDrawer}
+                    />
+                  </View>
                 </View>
               </>
             ) : null}

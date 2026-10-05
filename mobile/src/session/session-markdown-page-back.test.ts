@@ -52,7 +52,6 @@ const setLeaveDrafts: Mock<(drafts: SetStateAction<DirtyMarkdownDraft[] | null>)
 
 function scopeWith(markdownDocs: Map<string, MarkdownDocState>): MobileSessionMarkdownActionsScope {
   return {
-    hostId: 'host-1',
     worktreeId: 'wt-1',
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the hook calls only canGoBack/back/replace; any other member is a TypeError here.
     router: router as unknown as MobileSessionMarkdownActionsScope['router'],

@@ -32,13 +32,16 @@ export type HostScreenProps = {
   hostId?: string
   action?: string
   onHideSidebar?: () => void
+  /** Phone drawer: close after a workspace or floating workspace is opened. */
+  onWorkspaceActivated?: () => void
 }
 
 export function useHostScreenController({
   embedded = false,
   hostId: hostIdProp,
   action: actionProp,
-  onHideSidebar
+  onHideSidebar,
+  onWorkspaceActivated
 }: HostScreenProps = {}) {
   const params = useLocalSearchParams<{ hostId: string; action?: string; notice?: string }>()
   const hostId = hostIdProp ?? params.hostId
@@ -90,6 +93,7 @@ export function useHostScreenController({
     fetchWorktrees: catalog.fetchWorktrees,
     forgetHostClient,
     hostId,
+    onWorkspaceActivated,
     pathname,
     router,
     state

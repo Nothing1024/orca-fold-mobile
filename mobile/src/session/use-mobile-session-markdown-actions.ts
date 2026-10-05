@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { Keyboard, Platform } from 'react-native'
 import { useClipboardWriter } from '../platform/clipboard'
+import { leaveHostRoute } from '../host-route-exit'
 import { useBackClaim } from '../navigation/use-back-claim'
 import { markdownTabSave } from './mobile-session-write-operations'
 import { triggerSuccess, triggerError } from '../platform/haptics'
@@ -8,7 +9,7 @@ import type { DirtyMarkdownDraft, MobileSessionTab } from './mobile-session-rout
 import type { MobileSessionDiffCommentsModel } from './use-mobile-session-diff-comments'
 
 /**
- * What these actions read, which is fourteen of the session model's two hundred and sixty-eight.
+ * What these actions read, which is thirteen of the session model's two hundred and sixty-eight.
  *
  * Declared rather than taking the whole model, so the hook can be rendered on its own: its Back
  * claim is tested directly (ruling 33.2), and a probe that had to build the whole session to reach
@@ -17,7 +18,6 @@ import type { MobileSessionDiffCommentsModel } from './use-mobile-session-diff-c
  */
 export type MobileSessionMarkdownActionsScope = Pick<
   MobileSessionDiffCommentsModel,
-  | 'hostId'
   | 'worktreeId'
   | 'router'
   | 'client'
@@ -35,7 +35,6 @@ export type MobileSessionMarkdownActionsScope = Pick<
 
 export function useMobileSessionMarkdownActions(scope: MobileSessionMarkdownActionsScope) {
   const {
-    hostId,
     worktreeId,
     router,
     client,
@@ -102,13 +101,9 @@ export function useMobileSessionMarkdownActions(scope: MobileSessionMarkdownActi
   }, [markdownDocs, sessionTabs])
 
   const leaveSession = useCallback(() => {
-    if (router.canGoBack()) {
-      router.back()
-      return
-    }
-    // Why: Android back can fire at the root route; replace avoids React Navigation's dev-only GO_BACK warning.
-    router.replace(`/h/${hostId}`)
-  }, [hostId, router])
+    // The workspace list is the same nav. Back returns to the host picker, not a second list page.
+    leaveHostRoute(router)
+  }, [router])
 
   const requestLeaveSession = useCallback(() => {
     const dirtyDrafts = getDirtyMarkdownDrafts()

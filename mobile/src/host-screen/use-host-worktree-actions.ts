@@ -21,6 +21,7 @@ export function useHostWorktreeActions(args: {
   fetchWorktrees: (options?: { allowDuringModal?: boolean }) => Promise<void>
   forgetHostClient: ReturnType<typeof useForgetHostClient>
   hostId: string | undefined
+  onWorkspaceActivated?: () => void
   pathname: string
   router: ReturnType<typeof useRouter>
   state: HostScreenState
@@ -32,6 +33,7 @@ export function useHostWorktreeActions(args: {
     fetchWorktrees,
     forgetHostClient,
     hostId,
+    onWorkspaceActivated,
     pathname,
     router,
     state
@@ -201,21 +203,24 @@ export function useHostWorktreeActions(args: {
       // rather than the string "undefined", which it would accept as a host named undefined.
       const target = `/h/${encodeURIComponent(hostId ?? '')}/session/${encodeURIComponent(item.worktreeId)}?name=${encodeURIComponent(item.displayName || item.repo)}`
       navigateFromHostList(target)
+      onWorkspaceActivated?.()
     },
-    [client, connState, hostId, navigateFromHostList]
+    [client, connState, hostId, navigateFromHostList, onWorkspaceActivated]
   )
 
   const openFloatingWorkspace = useCallback(() => {
     // Why: no worktree.activate here — the floating sentinel has no worktree
     // record; session.tabs.list hydrates its host-owned tabs on open.
     navigateFromHostList(floatingWorkspaceSessionPath(hostId))
-  }, [hostId, navigateFromHostList])
+    onWorkspaceActivated?.()
+  }, [hostId, navigateFromHostList, onWorkspaceActivated])
 
   return {
     handleDeleteWorktree,
     handleRemoveHost,
     leaveHost,
     navigateFromHostList,
+    onWorkspaceActivated,
     openFloatingWorkspace,
     openNewWorktreeModal,
     openWorktreeSession,

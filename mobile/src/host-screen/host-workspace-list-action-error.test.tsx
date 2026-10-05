@@ -25,6 +25,14 @@ vi.mock('../components/NewWorkspaceFab', () => ({
   FAB_SIZE: 56
 }))
 vi.mock('../components/WorktreeListRow', () => ({ WorktreeListRow: 'WorktreeListRow' }))
+vi.mock('./HostWorkspaceSessions', () => ({ HostWorkspaceSessions: 'HostWorkspaceSessions' }))
+vi.mock('../session/mobile-session-nav-bridge', () => ({
+  useMobileSessionNav: () => null,
+  sessionNavMatchesWorktree: () => false
+}))
+vi.mock('../session/floating-workspace', () => ({
+  isFloatingWorkspaceWorktreeId: () => false
+}))
 vi.mock('../worktree/host-workspace-list-states', () => ({
   HostWorkspaceListStates: 'HostWorkspaceListStates'
 }))

@@ -7,6 +7,12 @@ import { MobileRepoIcon } from '../components/MobileRepoIcon'
 import { MobileSearchField } from '../components/MobileSearchField'
 import { NewWorkspaceFab, FAB_SIZE } from '../components/NewWorkspaceFab'
 import { WorktreeListRow } from '../components/WorktreeListRow'
+import {
+  sessionNavMatchesWorktree,
+  useMobileSessionNav
+} from '../session/mobile-session-nav-bridge'
+import { isFloatingWorkspaceWorktreeId } from '../session/floating-workspace'
+import { HostWorkspaceSessions } from './HostWorkspaceSessions'
 import { colors, spacing } from '../theme/mobile-theme'
 import { getWorktreeRowIdentity } from '../worktree/worktree-host-row-identity'
 import { HostWorkspaceListStates } from '../worktree/host-workspace-list-states'
@@ -41,6 +47,14 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
     state
   } = controller
   const { rawSections, sections, uniqueRepoColors } = sectionsResult
+  const sessionNav = useMobileSessionNav()
+  const openWorktreeListed =
+    sessionNav != null &&
+    displayWorktrees.some((worktree) =>
+      sessionNavMatchesWorktree(sessionNav, hostId, worktree.worktreeId)
+    )
+  const detachedSessionNav =
+    sessionNav != null && sessionNav.hostId === hostId && !openWorktreeListed ? sessionNav : null
 
   return (
     <>
@@ -107,6 +121,18 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
         search={state.search}
         activeFilterCount={settings.activeFilterCount}
       />
+
+      {detachedSessionNav ? (
+        <View style={styles.list}>
+          {isFloatingWorkspaceWorktreeId(detachedSessionNav.worktreeId) ? (
+            <Text style={styles.sectionTitle}>Floating Workspace</Text>
+          ) : null}
+          <HostWorkspaceSessions
+            nav={detachedSessionNav}
+            onActivated={actions.onWorkspaceActivated}
+          />
+        </View>
+      ) : null}
 
       {sections.length > 0 && (
         <SectionList
@@ -175,20 +201,28 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
             />
           }
           renderItem={({ item }) => (
-            <WorktreeListRow
-              item={item}
-              isReadOnly={isReadOnly}
-              now={now}
-              status={getWorktreeStatus(item)}
-              repoColor={uniqueRepoColors.get(item.repo) ?? repoColor(item.repo)}
-              repoIcon={state.repoIconsByName.get(item.repo) ?? null}
-              hideRepo={state.groupMode === 'repo'}
-              onPress={actions.openWorktreeSession}
-              onLongPress={
-                item.workspaceKind === 'folder-workspace' ? undefined : state.setActionTarget
-              }
-              onToggleLineage={settings.toggleWorktreeLineage}
-            />
+            <View>
+              <WorktreeListRow
+                item={item}
+                isReadOnly={isReadOnly}
+                now={now}
+                status={getWorktreeStatus(item)}
+                repoColor={uniqueRepoColors.get(item.repo) ?? repoColor(item.repo)}
+                repoIcon={state.repoIconsByName.get(item.repo) ?? null}
+                hideRepo={state.groupMode === 'repo'}
+                onPress={actions.openWorktreeSession}
+                onLongPress={
+                  item.workspaceKind === 'folder-workspace' ? undefined : state.setActionTarget
+                }
+                onToggleLineage={settings.toggleWorktreeLineage}
+              />
+              {sessionNavMatchesWorktree(sessionNav, hostId, item.worktreeId) ? (
+                <HostWorkspaceSessions
+                  nav={sessionNav}
+                  onActivated={actions.onWorkspaceActivated}
+                />
+              ) : null}
+            </View>
           )}
         />
       )}
