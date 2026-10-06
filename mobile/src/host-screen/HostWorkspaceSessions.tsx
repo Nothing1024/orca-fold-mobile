@@ -51,7 +51,7 @@ export function HostWorkspaceSessions({
   onActivated?: () => void
 }) {
   return (
-    <View accessibilityLabel="Workspace sessions">
+    <View style={rail.sessionRailNest} accessibilityLabel="Workspace sessions">
       <Text style={rail.sessionRailSectionLabel}>Sessions</Text>
       {nav.tabs.length === 0 ? (
         <Text style={rail.sessionRailConnectionText}>No sessions</Text>

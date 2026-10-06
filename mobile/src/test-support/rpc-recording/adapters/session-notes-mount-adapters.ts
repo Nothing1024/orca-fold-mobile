@@ -105,7 +105,6 @@ export function sessionNotesMountAdapters(
       const hook = hookMount(() => {
         actions = useMarkdown(
           mountFixture<Parameters<typeof useMarkdown>[0]>({
-            hostId: 'host-1',
             worktreeId: WORKSPACE,
             router: { push: (href: unknown) => effect('router-push', href), back: () => {} },
             client,
