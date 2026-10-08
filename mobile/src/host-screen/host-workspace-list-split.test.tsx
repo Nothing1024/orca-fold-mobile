@@ -43,6 +43,9 @@ vi.mock('./HostWorkspaceSessions', () => ({ HostWorkspaceSessions: 'HostWorkspac
 vi.mock('./HostSidebarWorkspacesHeader', () => ({
   HostSidebarWorkspacesHeader: 'HostSidebarWorkspacesHeader'
 }))
+vi.mock('./HostSidebarWorkspaceTools', () => ({
+  HostSidebarWorkspaceTools: 'HostSidebarWorkspaceTools'
+}))
 vi.mock('../session/mobile-session-nav-bridge', async () => {
   const actual = await vi.importActual<typeof import('../session/mobile-session-nav-bridge')>(
     '../session/mobile-session-nav-bridge'
@@ -73,6 +76,7 @@ function navFor(worktreeId: string): MobileSessionNavSnapshot {
     openQuickCommands: () => {},
     openFiles: () => {},
     openSourceControl: () => {},
+    openPr: () => {},
     openMore: () => {}
   }
 }
@@ -295,7 +299,7 @@ describe('embedded sidebar splits worktrees and sessions', () => {
     expect(workspaceNames).not.toContain('HostSidebarListToolbar')
 
     expect(childNames(region(tree, 'Sessions'))).toEqual(['ScrollView'])
-    expect(childNames(region(tree, 'Workspace tools'))).toEqual([])
+    expect(childNames(region(tree, 'Workspace tools'))).toEqual(['HostSidebarWorkspaceTools'])
 
     expect(named(tree, 'HostSidebarWorkspacesHeader')).toHaveLength(1)
     expect(named(tree, 'HostSidebarListToolbar')).toEqual([])

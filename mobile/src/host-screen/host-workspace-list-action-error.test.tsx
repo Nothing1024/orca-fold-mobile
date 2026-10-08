@@ -32,6 +32,9 @@ vi.mock('./HostWorkspaceSessions', () => ({ HostWorkspaceSessions: 'HostWorkspac
 vi.mock('./HostSidebarWorkspacesHeader', () => ({
   HostSidebarWorkspacesHeader: 'HostSidebarWorkspacesHeader'
 }))
+vi.mock('./HostSidebarWorkspaceTools', () => ({
+  HostSidebarWorkspaceTools: 'HostSidebarWorkspaceTools'
+}))
 vi.mock('../session/mobile-session-nav-bridge', () => ({
   useMobileSessionNav: () => null,
   sessionNavMatchesWorktree: () => false
