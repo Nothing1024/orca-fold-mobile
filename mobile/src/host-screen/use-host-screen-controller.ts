@@ -34,6 +34,8 @@ export type HostScreenProps = {
   onHideSidebar?: () => void
   /** Phone drawer: close after a workspace or floating workspace is opened. */
   onWorkspaceActivated?: () => void
+  /** Wide host row already pads the status bar; a second top inset drops only this column. */
+  omitTopSafeArea?: boolean
 }
 
 export function useHostScreenController({
@@ -41,7 +43,8 @@ export function useHostScreenController({
   hostId: hostIdProp,
   action: actionProp,
   onHideSidebar,
-  onWorkspaceActivated
+  onWorkspaceActivated,
+  omitTopSafeArea = false
 }: HostScreenProps = {}) {
   const params = useLocalSearchParams<{ hostId: string; action?: string; notice?: string }>()
   const hostId = hostIdProp ?? params.hostId
@@ -138,7 +141,8 @@ export function useHostScreenController({
     repoIdsByName: state.repoIdsByName,
     repoColorsByName: state.repoColorsByName,
     collapsedGroups: state.collapsedGroups,
-    workspaceStatuses: state.workspaceStatuses
+    workspaceStatuses: state.workspaceStatuses,
+    includePinnedSection: !embedded
   })
   const existingWorktreePaths = useMemo(() => state.worktrees.map((w) => w.path), [state.worktrees])
   const activeWorktreeScroll = useActiveWorktreeScroll(sectionsResult.sections)
@@ -164,6 +168,7 @@ export function useHostScreenController({
     lastConnectedAt,
     noticeParam,
     now,
+    omitTopSafeArea,
     onHideSidebar,
     reconnectAttempts,
     relayRecovery,
