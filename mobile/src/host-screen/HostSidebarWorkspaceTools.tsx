@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { Folder, GitBranch, GitPullRequest, SquareChevronRight } from 'lucide-react-native'
+import { Folder, GitBranch, SquareChevronRight } from 'lucide-react-native'
 import { useMobileSessionNav } from '../session/mobile-session-nav-bridge'
 import { colors, spacing } from '../theme/mobile-theme'
 import type { HostScreenController } from './use-host-screen-controller'
@@ -48,15 +48,6 @@ export function HostSidebarWorkspaceTools({ controller }: { controller: HostScre
       hidden: nav != null && !nav.showSourceControl,
       active: nav?.activePanel === 'sourceControl',
       onPress: () => nav?.openSourceControl()
-    },
-    {
-      key: 'pr',
-      label: 'PR',
-      accessibilityLabel: 'Open pull request',
-      icon: GitPullRequest,
-      hidden: nav != null && !nav.showMore,
-      active: nav?.activePanel === 'pr',
-      onPress: () => nav?.openPr()
     }
   ]
   return (

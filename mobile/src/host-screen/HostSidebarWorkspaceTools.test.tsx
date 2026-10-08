@@ -18,7 +18,6 @@ vi.mock('react-native', () => ({
 vi.mock('lucide-react-native', () => ({
   Folder: 'Folder',
   GitBranch: 'GitBranch',
-  GitPullRequest: 'GitPullRequest',
   SquareChevronRight: 'SquareChevronRight'
 }))
 
@@ -82,19 +81,13 @@ beforeEach(() => {
 describe('the pinned workspace tool row', () => {
   it('calls each tool and highlights the open panel', () => {
     const openFiles = vi.fn()
-    const openPr = vi.fn()
-    publishMobileSessionNav(nav({ openFiles, openPr, activePanel: 'pr' }))
+    publishMobileSessionNav(nav({ openFiles, activePanel: 'files' }))
     const tree = render()
-    expect(labels(tree)).toEqual([
-      'Quick commands',
-      'Open file explorer',
-      'Open source control',
-      'Open pull request'
-    ])
-    const pr = tree.root.find((node) => node.props.accessibilityLabel === 'Open pull request')
-    const style = Array.isArray(pr.props.style)
-      ? Object.assign({}, ...pr.props.style)
-      : pr.props.style
+    expect(labels(tree)).toEqual(['Quick commands', 'Open file explorer', 'Open source control'])
+    const files = tree.root.find((node) => node.props.accessibilityLabel === 'Open file explorer')
+    const style = Array.isArray(files.props.style)
+      ? Object.assign({}, ...files.props.style)
+      : files.props.style
     expect(style.backgroundColor).toBe(colors.sidebarSelectionFill)
     act(() => {
       tree.root
@@ -104,8 +97,8 @@ describe('the pinned workspace tool row', () => {
     expect(openFiles).toHaveBeenCalledTimes(1)
   })
 
-  it('hides files and pull request when the session does not offer them', () => {
-    publishMobileSessionNav(nav({ showFiles: false, showMore: false }))
+  it('hides files when the session does not offer them', () => {
+    publishMobileSessionNav(nav({ showFiles: false }))
     expect(labels(render())).toEqual(['Quick commands', 'Open source control'])
   })
 
