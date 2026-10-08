@@ -27,6 +27,8 @@ export const colors = {
   sidebarPanel: '#222225',
   sidebarSelectionFill: 'rgba(59, 130, 246, 0.16)',
   sidebarSelectionBorder: 'rgba(59, 130, 246, 0.42)',
+  // Branch and count text on a selected wide-sidebar row.
+  sidebarSelectionText: '#9ec2ff',
   // Pressed wash for the sidebar's transparent icon buttons.
   sidebarIconPressed: 'rgba(255, 255, 255, 0.08)',
 
