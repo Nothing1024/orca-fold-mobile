@@ -22,6 +22,14 @@ export const colors = {
   // textPrimary would lack contrast against the saturated fill.
   onAccent: '#ffffff',
 
+  // Wide (embedded) sidebar only. Parent issue #11 ASM-010: a blue selection
+  // emphasis and an opaque stand-in for the prototype's glass panel.
+  sidebarPanel: '#222225',
+  sidebarSelectionFill: 'rgba(59, 130, 246, 0.16)',
+  sidebarSelectionBorder: 'rgba(59, 130, 246, 0.42)',
+  // Pressed wash for the sidebar's transparent icon buttons.
+  sidebarIconPressed: 'rgba(255, 255, 255, 0.08)',
+
   statusGreen: '#22c55e',
   statusAmber: '#f59e0b',
   statusRed: '#ef4444',
@@ -62,12 +70,18 @@ export const radii = {
   card: 14,
   button: 6,
   input: 6,
-  camera: 8
+  camera: 8,
+  // Wide sidebar row blocks and icon buttons (prototype radius 10 / 9).
+  sidebarRow: 10,
+  sidebarIcon: 9
 } as const
 
 export const typography = {
   titleSize: 18,
   bodySize: 14,
   metaSize: 12,
-  monoFamily: 'monospace' as const
+  monoFamily: 'monospace' as const,
+  // Uppercase section labels in the wide sidebar ("WORKSPACES").
+  sidebarLabelSize: 11,
+  sidebarLabelTracking: 1
 } as const
