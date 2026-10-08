@@ -25,7 +25,8 @@ function snapshot(worktreeId: string): MobileSessionNavSnapshot {
     openFiles: () => {},
     openSourceControl: () => {},
     openPr: () => {},
-    openMore: () => {}
+    openMore: () => {},
+    activeTabView: 'terminal'
   }
 }
 

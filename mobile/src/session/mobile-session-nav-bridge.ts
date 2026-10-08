@@ -8,6 +8,8 @@ export type MobileSessionNavSnapshot = {
   hostId: string
   worktreeId: string
   activeTabId: string | null
+  /** The open tab's view. Chat only while native chat covers that tab. */
+  activeTabView: 'terminal' | 'chat'
   tabs: readonly MobileSessionTab[]
   createDisabled: boolean
   showFiles: boolean

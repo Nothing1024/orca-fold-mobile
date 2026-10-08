@@ -31,6 +31,7 @@ function controllerWith(tab: MobileSessionTab): MobileSessionController {
     isFloatingWorkspaceRoute: false,
     quickCommandsSupported: false,
     showHeaderMoreButton: false,
+    showNativeChat: false,
     visibleTabs: [tab],
     switchSessionTab: vi.fn(),
     openSessionTabActionSheetAfterKeyboardDismiss: vi.fn(),
