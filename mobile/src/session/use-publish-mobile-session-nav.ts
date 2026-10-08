@@ -82,6 +82,7 @@ function snapshotFrom(read: () => MobileSessionController): MobileSessionNavSnap
     },
     openFiles: () => read().handlePanelTap('files'),
     openSourceControl: () => read().handlePanelTap('sourceControl'),
+    openPr: () => read().handlePanelTap('pr'),
     openMore: () => read().setShowHeaderMoreActions(true)
   }
 }

@@ -24,6 +24,7 @@ function snapshot(worktreeId: string): MobileSessionNavSnapshot {
     openQuickCommands: () => {},
     openFiles: () => {},
     openSourceControl: () => {},
+    openPr: () => {},
     openMore: () => {}
   }
 }

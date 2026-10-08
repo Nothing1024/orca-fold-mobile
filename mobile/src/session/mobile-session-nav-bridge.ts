@@ -20,6 +20,8 @@ export type MobileSessionNavSnapshot = {
   openQuickCommands: () => void
   openFiles: () => void
   openSourceControl: () => void
+  /** Opens the PR panel the way Files and Source Control open theirs. */
+  openPr: () => void
   openMore: () => void
 }
 
