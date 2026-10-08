@@ -65,7 +65,9 @@ export function HostWorktreeSectionList({
           !embedded && { maxWidth: contentMaxWidth, width: '100%', alignSelf: 'center' }
       ]}
       renderSectionHeader={({ section }) => {
-        if (!section.title) {
+        // The ungrouped catalog is one synthetic "All" section. The wide sidebar has no group
+        // header for it; the phone keeps the header.
+        if (!section.title || (embedded && state.groupMode === 'none')) {
           return null
         }
         const isCollapsed = state.collapsedGroups.has(section.key)

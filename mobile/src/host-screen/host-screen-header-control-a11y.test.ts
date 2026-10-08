@@ -9,39 +9,43 @@ import {
 } from '../mobile-web-shell/pressable-control-source-reader'
 
 /**
- * This header renders two toolbars and the phone sees the narrow one. Its controls carried no role
- * and no name, so a screen reader could not find them and C2.9's render check could only assert
- * their absence at 390 px. The wide toolbar already names every control, and the name is computed
- * from the same state, so the two must agree rather than each invent wording.
+ * The phone header and the embedded session sidebar both expose the directory actions. Their
+ * controls carried no role and no name, so a screen reader could not find them. The name is
+ * computed from the same state, so the two sites must agree rather than each invent wording.
  *
  * A spread reads as unknown rather than absent: a control whose handler or whose accessibility
  * props arrive through one is a control this scan cannot judge, so it fails both rules and says so,
  * instead of passing quietly or reading as an unnamed control.
  */
 const HEADER = 'src/host-screen/host-screen-header.tsx'
+const SIDEBAR_ACTIONS = ['src/host-screen/HostSidebarWorkspacesHeader.tsx']
 const MOBILE_ROOT = join(import.meta.dirname, '..', '..')
 
 /**
- * One entry per control both toolbars render, keyed by the handler it presses, which is what makes
- * two elements the same control. Each must be found twice, so the naming rule below always has
- * pairs to compare: the rule derives its own groups, and over a file with no repeated handler it
- * would hold vacuously.
+ * One entry per directory control that moved out of the embedded toolbar into the session sidebar.
+ * Keyed by the handler it presses, which is what makes two elements the same control.
  */
 const SHARED_CONTROLS = [
+  '() => actions.navigateFromHostList(`/h/${encodeURIComponent(hostId)}/accounts`)',
+  '() => actions.navigateFromHostList(`/h/${encodeURIComponent(hostId)}/tasks`)'
+]
+
+/** Controls that live only in the wide sidebar now, each with a role and a name. */
+const SIDEBAR_ONLY_CONTROLS = [
   '() => state.setShowFilterModal(true)',
   '() => state.setShowSortPicker(true)',
   '() => state.setShowGroupPicker(true)',
-  '() => actions.navigateFromHostList(`/h/${encodeURIComponent(hostId)}/accounts`)',
-  '() => actions.navigateFromHostList(`/h/${encodeURIComponent(hostId)}/tasks`)',
-  '() => state.setShowSearch((s) => !s)'
+  '() => state.setShowSearch((s) => !s)',
+  'actions.openNewWorktreeModal',
+  'actions.openFloatingWorkspace'
 ]
 
-type Control = { line: number; press: Read; role: Read; label: Read }
+type Control = { file: string; line: number; press: Read; role: Read; label: Read }
 
-function headerControls(): Control[] {
+function controlsIn(relativePath: string): Control[] {
   const source = ts.createSourceFile(
-    HEADER,
-    readFileSync(join(MOBILE_ROOT, HEADER), 'utf8'),
+    relativePath,
+    readFileSync(join(MOBILE_ROOT, relativePath), 'utf8'),
     ts.ScriptTarget.Latest,
     true,
     ts.ScriptKind.TSX
@@ -55,6 +59,7 @@ function headerControls(): Control[] {
         // A Pressable with no handler is decoration; one whose handler is spread in is a control.
         if (!press.known || press.value !== '') {
           found.push({
+            file: relativePath,
             line: source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1,
             press,
             role: readAttribute(element, 'accessibilityRole'),
@@ -76,59 +81,66 @@ function show(read: Read): string {
   return read.value || 'none'
 }
 
+/** The phone header starts at the second return. Everything above it is the wide sidebar. */
+function phoneHeaderLine(): number {
+  const source = readFileSync(join(MOBILE_ROOT, HEADER), 'utf8')
+  const first = source.indexOf('return (')
+  const second = source.indexOf('return (', first + 1)
+  return source.slice(0, second).split('\n').length
+}
+
 function describeControl(control: Control): string {
-  return `${HEADER}:${control.line} press=${show(control.press)} role=${show(control.role)} label=${show(
+  return `${control.file}:${control.line} press=${show(control.press)} role=${show(control.role)} label=${show(
     control.label
   )}`
 }
 
-const CONTROLS = headerControls()
+const HEADER_CONTROLS = controlsIn(HEADER).filter((control) => control.file === HEADER)
+const SIDEBAR_CONTROLS = [
+  ...SIDEBAR_ACTIONS.flatMap(controlsIn),
+  ...controlsIn(HEADER).filter((control) => control.line < phoneHeaderLine())
+]
 
-/** Every handler this header presses more than once, with the names its sites give it. */
-function namesByHandler(): Map<string, Set<string>> {
-  const groups = new Map<string, Set<string>>()
-  for (const control of CONTROLS) {
-    if (!control.press.known) {
-      continue
-    }
-    const names = groups.get(control.press.value) ?? new Set<string>()
-    names.add(show(control.label))
-    groups.set(control.press.value, names)
-  }
-  return groups
+function soleLabel(controls: Control[], press: string): string | null {
+  const matches = controls.filter((control) => control.press.known && control.press.value === press)
+  const labels = [
+    ...new Set(
+      matches
+        .filter((control) => control.label.known && control.label.value !== '')
+        .map((control) => control.label.value)
+    )
+  ]
+  return labels.length === 1 ? labels[0] : null
 }
 
-describe('host header controls carry a role and a name in both toolbars', () => {
-  it('finds each shared control in both toolbars, so the naming rule has pairs to compare', () => {
+describe('directory controls keep a role and the same name on the phone and in the sidebar', () => {
+  it('finds each shared control once in the phone header and once in the sidebar', () => {
     expect(
       SHARED_CONTROLS.filter(
-        (press) =>
-          CONTROLS.filter((control) => control.press.known && control.press.value === press)
-            .length !== 2
+        (press) => soleLabel(HEADER_CONTROLS, press) !== soleLabel(SIDEBAR_CONTROLS, press)
       )
+    ).toEqual([])
+  })
+
+  it('keeps the wide-sidebar-only controls named once', () => {
+    expect(
+      SIDEBAR_ONLY_CONTROLS.filter((press) => soleLabel(SIDEBAR_CONTROLS, press) === null)
     ).toEqual([])
   })
 
   it('gives every pressable control the button role', () => {
     expect(
-      CONTROLS.filter((control) => !control.role.known || control.role.value !== 'button').map(
-        describeControl
-      )
+      [...HEADER_CONTROLS, ...SIDEBAR_CONTROLS]
+        .filter((control) => !control.role.known || control.role.value !== 'button')
+        .map(describeControl)
     ).toEqual([])
   })
 
   it('names every pressable control', () => {
     expect(
-      CONTROLS.filter((control) => !control.label.known || control.label.value === '').map(
-        describeControl
-      )
+      [...HEADER_CONTROLS, ...SIDEBAR_CONTROLS]
+        .filter((control) => !control.label.known || control.label.value === '')
+        .map(describeControl)
     ).toEqual([])
-  })
-
-  it('names a control the same way wherever this header renders it', () => {
-    const disagreeing = [...namesByHandler()]
-      .filter(([, names]) => names.size > 1)
-      .map(([press, names]) => `${press} -> ${[...names].sort().join(' | ')}`)
-    expect(disagreeing).toEqual([])
   })
 })

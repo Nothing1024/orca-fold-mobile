@@ -93,6 +93,26 @@ export const hostScreenPrimaryStyles = StyleSheet.create({
     fontSize: typography.sidebarLabelSize,
     color: colors.textSecondary
   },
+  sidebarHostMenu: {
+    marginTop: spacing.xs,
+    borderRadius: radii.sidebarRow,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.sidebarPanel,
+    overflow: 'hidden'
+  },
+  sidebarHostMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    minHeight: 44,
+    paddingHorizontal: spacing.md
+  },
+  sidebarHostMenuText: {
+    flex: 1,
+    color: colors.textPrimary,
+    fontSize: typography.bodySize
+  },
   reconnectButton: {
     paddingVertical: 4,
     paddingHorizontal: spacing.sm,

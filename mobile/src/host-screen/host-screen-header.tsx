@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import {
   ChevronLeft,
   Filter,
   Layers,
   List,
+  MoreHorizontal,
   PanelLeftClose,
   Search,
   SlidersHorizontal,
@@ -68,6 +70,8 @@ export function HostScreenHeader({ controller }: { controller: HostScreenControl
     !!hostId &&
     headerVerdict.kind !== 'auth-failed' &&
     forceReconnectHost !== null
+  const [hostMenuOpen, setHostMenuOpen] = useState(false)
+  const disconnected = connState !== 'connected'
 
   if (embedded) {
     return (
@@ -107,6 +111,19 @@ export function HostScreenHeader({ controller }: { controller: HostScreenControl
               <Text style={styles.reconnectButtonText}>Reconnect</Text>
             </Pressable>
           ) : null}
+          <Pressable
+            style={({ pressed }) => [
+              styles.sidebarIconButton,
+              pressed && styles.sidebarIconButtonPressed
+            ]}
+            onPress={() => setHostMenuOpen((open) => !open)}
+            accessibilityRole="button"
+            accessibilityLabel="Host menu"
+            accessibilityState={{ expanded: hostMenuOpen }}
+            hitSlop={6}
+          >
+            <MoreHorizontal size={16} color={colors.textSecondary} />
+          </Pressable>
           {onHideSidebar ? (
             <Pressable
               style={({ pressed }) => [
@@ -122,6 +139,52 @@ export function HostScreenHeader({ controller }: { controller: HostScreenControl
             </Pressable>
           ) : null}
         </View>
+        {hostMenuOpen ? (
+          <View style={styles.sidebarHostMenu}>
+            <Pressable
+              style={[styles.sidebarHostMenuItem, disconnected && styles.toolbarIconDisabled]}
+              onPress={() =>
+                actions.navigateFromHostList(`/h/${encodeURIComponent(hostId)}/accounts`)
+              }
+              disabled={disconnected}
+              accessibilityRole="button"
+              accessibilityLabel="Accounts"
+              hitSlop={4}
+            >
+              <UserCircle
+                size={16}
+                color={disconnected ? colors.textMuted : colors.textSecondary}
+              />
+              <Text style={styles.sidebarHostMenuText}>Accounts</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.sidebarHostMenuItem, disconnected && styles.toolbarIconDisabled]}
+              onPress={() => actions.navigateFromHostList(`/h/${encodeURIComponent(hostId)}/tasks`)}
+              disabled={disconnected}
+              accessibilityRole="button"
+              accessibilityLabel="Tasks"
+              hitSlop={4}
+            >
+              <List size={16} color={disconnected ? colors.textMuted : colors.textSecondary} />
+              <Text style={styles.sidebarHostMenuText}>Tasks</Text>
+            </Pressable>
+            {floatingWorkspaceEnabled ? (
+              <Pressable
+                style={[styles.sidebarHostMenuItem, disconnected && styles.toolbarIconDisabled]}
+                onPress={actions.openFloatingWorkspace}
+                disabled={disconnected}
+                accessibilityRole="button"
+                accessibilityLabel="Floating Workspace"
+              >
+                <SquareTerminal
+                  size={16}
+                  color={disconnected ? colors.textMuted : colors.textSecondary}
+                />
+                <Text style={styles.sidebarHostMenuText}>Floating Workspace</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
       </View>
     )
   }

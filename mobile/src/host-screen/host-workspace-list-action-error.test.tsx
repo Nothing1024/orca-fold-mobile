@@ -29,9 +29,8 @@ vi.mock('./HostSidebarWorkspaceRow', () => ({
   HostSidebarWorkspaceRow: 'HostSidebarWorkspaceRow'
 }))
 vi.mock('./HostWorkspaceSessions', () => ({ HostWorkspaceSessions: 'HostWorkspaceSessions' }))
-vi.mock('./HostSidebarListToolbar', () => ({ HostSidebarListToolbar: 'HostSidebarListToolbar' }))
-vi.mock('./HostSidebarBottomActions', () => ({
-  HostSidebarBottomActions: 'HostSidebarBottomActions'
+vi.mock('./HostSidebarWorkspacesHeader', () => ({
+  HostSidebarWorkspacesHeader: 'HostSidebarWorkspacesHeader'
 }))
 vi.mock('../session/mobile-session-nav-bridge', () => ({
   useMobileSessionNav: () => null,

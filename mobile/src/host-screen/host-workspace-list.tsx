@@ -12,8 +12,7 @@ import { isFloatingWorkspaceWorktreeId } from '../session/floating-workspace'
 import { HostWorkspaceSessions } from './HostWorkspaceSessions'
 import { colors, spacing } from '../theme/mobile-theme'
 import { HostWorkspaceListStates } from '../worktree/host-workspace-list-states'
-import { HostSidebarBottomBar } from './HostSidebarBottomBar'
-import { HostSidebarListToolbar } from './HostSidebarListToolbar'
+import { HostSidebarWorkspacesHeader } from './HostSidebarWorkspacesHeader'
 import { HostWorktreeSectionList } from './HostWorktreeSectionList'
 import { hostScreenStyles as styles } from './host-screen-styles'
 import type { HostScreenController } from './use-host-screen-controller'
@@ -128,7 +127,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
       <View style={embeddedSplitStyles.column}>
         <View style={embeddedSplitStyles.workspacesPane} accessibilityLabel="Workspaces">
           {notices}
-          <HostSidebarListToolbar controller={controller} />
+          <HostSidebarWorkspacesHeader controller={controller} />
           {searchBar}
           {listStates}
           {worktreeList}
@@ -152,9 +151,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
             </ScrollView>
           ) : null}
         </View>
-        <View style={embeddedSplitStyles.toolPane} accessibilityLabel="Workspace tools">
-          <HostSidebarBottomBar controller={controller} />
-        </View>
+        <View style={embeddedSplitStyles.toolPane} accessibilityLabel="Workspace tools" />
       </View>
     )
   }

@@ -33,6 +33,7 @@ function controllerWith(forceReconnectHost: ForceReconnect) {
     actions: {
       leaveHost: () => {},
       navigateFromHostList: () => {},
+      openFloatingWorkspace: () => {},
       openNewWorktreeModal: () => {}
     },
     connState: 'reconnecting',

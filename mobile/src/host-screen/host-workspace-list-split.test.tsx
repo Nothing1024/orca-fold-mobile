@@ -40,9 +40,8 @@ vi.mock('./HostSidebarWorkspaceRow', () => ({
   HostSidebarWorkspaceRow: 'HostSidebarWorkspaceRow'
 }))
 vi.mock('./HostWorkspaceSessions', () => ({ HostWorkspaceSessions: 'HostWorkspaceSessions' }))
-vi.mock('./HostSidebarListToolbar', () => ({ HostSidebarListToolbar: 'HostSidebarListToolbar' }))
-vi.mock('./HostSidebarBottomActions', () => ({
-  HostSidebarBottomActions: 'HostSidebarBottomActions'
+vi.mock('./HostSidebarWorkspacesHeader', () => ({
+  HostSidebarWorkspacesHeader: 'HostSidebarWorkspacesHeader'
 }))
 vi.mock('../session/mobile-session-nav-bridge', async () => {
   const actual = await vi.importActual<typeof import('../session/mobile-session-nav-bridge')>(
@@ -288,24 +287,19 @@ describe('embedded sidebar splits worktrees and sessions', () => {
     expect(toolsRegion?.props.style).toMatchObject({ flexShrink: 0 })
 
     const workspaceNames = childNames(region(tree, 'Workspaces'))
-    expect(workspaceNames.indexOf('HostSidebarListToolbar')).toBeGreaterThanOrEqual(0)
+    expect(workspaceNames.indexOf('HostSidebarWorkspacesHeader')).toBeGreaterThanOrEqual(0)
     expect(workspaceNames.indexOf('HostWorktreeSectionList')).toBeGreaterThan(
-      workspaceNames.indexOf('HostSidebarListToolbar')
+      workspaceNames.indexOf('HostSidebarWorkspacesHeader')
     )
     expect(workspaceNames).not.toContain('ScrollView')
-    expect(workspaceNames).not.toContain('HostSidebarBottomBar')
+    expect(workspaceNames).not.toContain('HostSidebarListToolbar')
 
     expect(childNames(region(tree, 'Sessions'))).toEqual(['ScrollView'])
-    expect(childNames(region(tree, 'Workspace tools'))).toEqual(['HostSidebarBottomBar'])
+    expect(childNames(region(tree, 'Workspace tools'))).toEqual([])
 
-    expect(named(tree, 'HostSidebarListToolbar')).toHaveLength(1)
-    const bottom = named(tree, 'HostSidebarBottomActions')[0]
-    expect(bottom).toBeDefined()
-    if (bottom === undefined) {
-      throw new Error('expected a bottom bar')
-    }
-    expect(ancestorNames(bottom)).not.toContain('ScrollView')
-    expect(ancestorNames(bottom)).not.toContain('SectionList')
+    expect(named(tree, 'HostSidebarWorkspacesHeader')).toHaveLength(1)
+    expect(named(tree, 'HostSidebarListToolbar')).toEqual([])
+    expect(named(tree, 'HostSidebarBottomBar')).toEqual([])
     expect(named(tree, 'NewWorkspaceFab')).toEqual([])
   })
 
@@ -328,8 +322,32 @@ describe('embedded sidebar splits worktrees and sessions', () => {
     expect(sessions.props.nav.worktreeId).toBe(FLOATING_WORKSPACE_WORKTREE_ID)
     expect(ancestorNames(sessions).filter((name) => name === 'ScrollView')).toEqual(['ScrollView'])
     expect(named(tree, 'Text').map((node) => node.props.children)).toContain('Floating Workspace')
-    expect(named(tree, 'HostSidebarListToolbar')).toHaveLength(1)
-    expect(named(tree, 'HostSidebarBottomBar')).toHaveLength(1)
+    expect(named(tree, 'HostSidebarWorkspacesHeader')).toHaveLength(1)
+    expect(named(tree, 'HostSidebarBottomBar')).toEqual([])
+  })
+
+  it('drops the All group header on the wide sidebar and keeps it on the phone', () => {
+    const all = [{ key: 'all', title: 'All', data: [selected, following] }]
+    const header = (tree: ReactTestRenderer) => {
+      const [list] = named(tree, 'SectionList')
+      if (list === undefined) {
+        throw new Error('expected a worktree list')
+      }
+      const rendered = list.props.renderSectionHeader({ section: all[0] })
+      return rendered?.props.accessibilityLabel ?? null
+    }
+    const wide = renderList({
+      embedded: true,
+      sections: all,
+      displayWorktrees: [selected, following]
+    })
+    expect(header(wide)).toBeNull()
+    const phone = renderList({
+      embedded: false,
+      sections: all,
+      displayWorktrees: [selected, following]
+    })
+    expect(header(phone)).toBe('All')
   })
 
   it('leaves the phone page nesting sessions under the selected row, with the floating button', () => {
