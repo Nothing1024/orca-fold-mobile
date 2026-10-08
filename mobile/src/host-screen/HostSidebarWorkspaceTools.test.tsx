@@ -41,6 +41,7 @@ function nav(overrides: Partial<MobileSessionNavSnapshot> = {}): MobileSessionNa
     openSourceControl: () => {},
     openPr: () => {},
     openMore: () => {},
+    activeTabView: 'terminal',
     ...overrides
   }
 }
