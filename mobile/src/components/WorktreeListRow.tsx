@@ -6,6 +6,7 @@ import {
   GitBranch,
   GitPullRequest,
   Monitor,
+  Pin,
   Server
 } from 'lucide-react-native'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
@@ -68,6 +69,10 @@ type Props<T extends WorktreeListRowItem> = {
   // When the list is already grouped under this repo's section header, the row
   // omits its own repo icon+name to avoid the redundant "📁 orca" on every row.
   hideRepo?: boolean
+  /** Embedded sidebar keeps one workspace row and does not repeat the agent activity line. */
+  hideAgents?: boolean
+  /** Pin mark for that single row, when the list has no separate Pinned section. */
+  showPin?: boolean
   status: WorktreeRollupStatus
   onPress: (item: T) => void
   onLongPress?: (item: T) => void
@@ -81,6 +86,8 @@ function WorktreeListRowComponent<T extends WorktreeListRowItem>({
   repoColor,
   repoIcon,
   hideRepo = false,
+  hideAgents = false,
+  showPin = false,
   status,
   onPress,
   onLongPress,
@@ -136,6 +143,7 @@ function WorktreeListRowComponent<T extends WorktreeListRowItem>({
           >
             {item.displayName || item.repo}
           </Text>
+          {showPin ? <Pin size={11} color={colors.textMuted} /> : null}
           {item.linkedPR && (
             <View style={styles.prBadge}>
               <GitPullRequest size={10} color={prStateColor(item.linkedPR.state)} />
@@ -195,7 +203,7 @@ function WorktreeListRowComponent<T extends WorktreeListRowItem>({
         </View>
         {/* Only agents get a secondary activity line, matching desktop. A plain
             terminal's shell-output tail is intentionally not surfaced here. */}
-        {item.agents && item.agents.length > 0 ? (
+        {!hideAgents && item.agents && item.agents.length > 0 ? (
           <WorktreeAgentList agents={item.agents} now={now} unvisited={item.unread} />
         ) : null}
         {lineageChildCount > 0 && onToggleLineage ? (

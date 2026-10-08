@@ -26,6 +26,8 @@ export function useWorkspaceSections(args: {
   repoColorsByName: Map<string, string>
   collapsedGroups: Set<string>
   workspaceStatuses: readonly WorkspaceStatusDefinition[]
+  /** False in the embedded sidebar, which keeps one row and a pin mark. */
+  includePinnedSection?: boolean
 }): {
   sections: Section[]
   rawSections: Section[]
@@ -42,7 +44,8 @@ export function useWorkspaceSections(args: {
     repoIdsByName,
     repoColorsByName,
     collapsedGroups,
-    workspaceStatuses
+    workspaceStatuses,
+    includePinnedSection = true
   } = args
 
   const uniqueRepos = useMemo(() => {
@@ -74,7 +77,8 @@ export function useWorkspaceSections(args: {
         pinnedIds,
         repoIdsByName,
         workspaceStatuses,
-        collapsedGroups
+        collapsedGroups,
+        includePinnedSection
       ),
     [
       displayWorktrees,
@@ -85,7 +89,8 @@ export function useWorkspaceSections(args: {
       pinnedIds,
       repoIdsByName,
       workspaceStatuses,
-      collapsedGroups
+      collapsedGroups,
+      includePinnedSection
     ]
   )
 

@@ -32,6 +32,7 @@ vi.mock('lucide-react-native', () => ({
   GitBranch: 'GitBranch',
   GitPullRequest: 'GitPullRequest',
   Monitor: 'Monitor',
+  Pin: 'Pin',
   Server: 'Server'
 }))
 
