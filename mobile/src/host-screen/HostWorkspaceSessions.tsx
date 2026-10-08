@@ -45,10 +45,13 @@ function SessionTabIcon({ tab }: { tab: MobileSessionTab }) {
 /** Sessions of the open workspace, rendered inside the single host nav. */
 export function HostWorkspaceSessions({
   nav,
-  onActivated
+  onActivated,
+  hideWorkspaceTools = false
 }: {
   nav: MobileSessionNavSnapshot
   onActivated?: () => void
+  /** Wide sidebar pins these on its own tool row. */
+  hideWorkspaceTools?: boolean
 }) {
   return (
     <View style={rail.sessionRailNest} accessibilityLabel="Workspace sessions">
@@ -104,20 +107,22 @@ export function HostWorkspaceSessions({
         <Plus size={17} color={colors.textSecondary} strokeWidth={2.2} />
         <Text style={rail.sessionRailActionText}>New Session</Text>
       </Pressable>
-      <Pressable
-        style={({ pressed }) => [rail.sessionRailAction, pressed && rail.sessionRailActionPressed]}
-        disabled={nav.createDisabled}
-        onPress={() => {
-          nav.openQuickCommands()
-          onActivated?.()
-        }}
-        accessibilityRole="button"
-        accessibilityLabel="Quick commands"
-      >
-        <SquareChevronRight size={17} color={colors.textSecondary} strokeWidth={2.2} />
-        <Text style={rail.sessionRailActionText}>Quick Commands</Text>
-      </Pressable>
-      {nav.showFiles ? (
+      {hideWorkspaceTools ? null : (
+        <Pressable
+          style={({ pressed }) => [rail.sessionRailAction, pressed && rail.sessionRailActionPressed]}
+          disabled={nav.createDisabled}
+          onPress={() => {
+            nav.openQuickCommands()
+            onActivated?.()
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Quick commands"
+        >
+          <SquareChevronRight size={17} color={colors.textSecondary} strokeWidth={2.2} />
+          <Text style={rail.sessionRailActionText}>Quick Commands</Text>
+        </Pressable>
+      )}
+      {hideWorkspaceTools || !nav.showFiles ? null : (
         <Pressable
           style={({ pressed }) => [
             rail.sessionRailAction,
@@ -134,8 +139,8 @@ export function HostWorkspaceSessions({
           <Folder size={17} color={colors.textSecondary} strokeWidth={2.1} />
           <Text style={rail.sessionRailActionText}>Files</Text>
         </Pressable>
-      ) : null}
-      {nav.showSourceControl ? (
+      )}
+      {hideWorkspaceTools || !nav.showSourceControl ? null : (
         <Pressable
           style={({ pressed }) => [
             rail.sessionRailAction,
@@ -152,8 +157,8 @@ export function HostWorkspaceSessions({
           <GitBranch size={17} color={colors.textSecondary} strokeWidth={2.1} />
           <Text style={rail.sessionRailActionText}>Source Control</Text>
         </Pressable>
-      ) : null}
-      {nav.showMore ? (
+      )}
+      {hideWorkspaceTools || !nav.showMore ? null : (
         <Pressable
           style={({ pressed }) => [
             rail.sessionRailAction,
@@ -170,7 +175,7 @@ export function HostWorkspaceSessions({
           <MoreHorizontal size={17} color={colors.textSecondary} strokeWidth={2.1} />
           <Text style={rail.sessionRailActionText}>More</Text>
         </Pressable>
-      ) : null}
+      )}
     </View>
   )
 }
