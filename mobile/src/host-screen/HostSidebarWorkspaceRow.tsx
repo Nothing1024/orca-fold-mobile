@@ -9,7 +9,7 @@ type Props<T extends WorktreeListRowItem> = {
   item: T
   isReadOnly: boolean
   showPin?: boolean
-  /** Wide sidebar only. A child indents and shows the branch instead of the repo name. */
+  /** Wide sidebar only. A child indents and shows only its branch; other rows show the repo. */
   role?: SidebarRowRole
   onPress: (item: T) => void
   onLongPress?: (item: T) => void
@@ -28,7 +28,21 @@ export function sidebarRowMeta(name: string, meta: string): string {
   return meta.trim() === name.trim() ? '' : meta
 }
 
-/** Wide-sidebar workspace row: one line of name, branch and session count. */
+/**
+ * Name of a non-child wide-sidebar row. A git row shows its repo, not the host's
+ * displayName: an unrenamed worktree's displayName is its branch, so repos all on
+ * `main` would read as identical `main` rows. Folder workspaces keep their label.
+ */
+export function sidebarRowName(
+  item: Pick<WorktreeListRowItem, 'workspaceKind' | 'displayName' | 'repo'>
+): string {
+  if (item.workspaceKind === 'folder-workspace') {
+    return item.displayName || item.repo
+  }
+  return item.repo || item.displayName
+}
+
+/** Wide-sidebar workspace row: one line of name, optional branch and session count. */
 function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
   item,
   isReadOnly,
@@ -41,9 +55,13 @@ function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
   const metaText = isFolderWorkspace
     ? item.comment?.trim() || item.path || 'Folder'
     : displayBranch(item.branch)
-  const name = item.displayName || item.repo
+  const name = sidebarRowName(item)
   const isChild = role === 'child'
-  const rowMeta = sidebarRowMeta(name, metaText)
+  // A repo row names only its repo; branches live on the indented child rows. A
+  // non-main worktree outside its tree (its main row filtered out) keeps its
+  // branch beside the repo so it stays identifiable.
+  const showsMeta = isFolderWorkspace || item.isMainWorktree === false
+  const rowMeta = showsMeta ? sidebarRowMeta(name, metaText) : ''
   const selected = item.isActive === true
 
   return (

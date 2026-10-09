@@ -5,7 +5,7 @@ import type { MobileSessionNavSnapshot } from '../session/mobile-session-nav-bri
 import { FLOATING_WORKSPACE_WORKTREE_ID } from '../session/floating-workspace'
 import { spacing } from '../theme/mobile-theme'
 import { FAB_SIZE } from '../components/NewWorkspaceFab'
-import { childWorktreeTitle, HostWorkspaceList } from './host-workspace-list'
+import { HostWorkspaceList, sidebarSessionsTitle } from './host-workspace-list'
 
 const harness = vi.hoisted(() => {
   const state: { nav: MobileSessionNavSnapshot | null; worktreeId: string | undefined } = {
@@ -267,15 +267,27 @@ describe('a deep link selects the open worktree row', () => {
   })
 })
 
-describe('childWorktreeTitle', () => {
-  it('uses the branch of a child worktree and ignores a main one', () => {
+describe('sidebarSessionsTitle', () => {
+  it('titles a child with its branch and a main worktree with its repo', () => {
     const rows = [
-      { worktreeId: 'main', branch: 'refs/heads/main', isMainWorktree: true },
-      { worktreeId: 'child', branch: 'refs/heads/fix/sidebar', isMainWorktree: false }
+      { worktreeId: 'main', repo: 'orca-mobile', branch: 'refs/heads/main', isMainWorktree: true },
+      {
+        worktreeId: 'child',
+        repo: 'orca-mobile',
+        branch: 'refs/heads/fix/sidebar',
+        isMainWorktree: false
+      },
+      {
+        worktreeId: 'folder',
+        repo: 'session-tool',
+        branch: '',
+        workspaceKind: 'folder-workspace' as const
+      }
     ]
-    expect(childWorktreeTitle(rows, 'child')).toBe('fix/sidebar')
-    expect(childWorktreeTitle(rows, 'main')).toBeNull()
-    expect(childWorktreeTitle(rows, 'missing')).toBeNull()
+    expect(sidebarSessionsTitle(rows, 'child')).toBe('fix/sidebar')
+    expect(sidebarSessionsTitle(rows, 'main')).toBe('orca-mobile')
+    expect(sidebarSessionsTitle(rows, 'folder')).toBeNull()
+    expect(sidebarSessionsTitle(rows, 'missing')).toBeNull()
   })
 })
 

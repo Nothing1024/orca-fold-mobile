@@ -43,7 +43,6 @@ function SessionTabIcon({ tab }: { tab: MobileSessionTab }) {
   )
 }
 
-
 function sessionPaneTitle(nav: MobileSessionNavSnapshot): string {
   // The host list already names this sentinel above the pane.
   if (isFloatingWorkspaceWorktreeId(nav.worktreeId)) {
@@ -192,7 +191,10 @@ export function HostWorkspaceSessions({
       </Pressable>
       {hideWorkspaceTools ? null : (
         <Pressable
-          style={({ pressed }) => [rail.sessionRailAction, pressed && rail.sessionRailActionPressed]}
+          style={({ pressed }) => [
+            rail.sessionRailAction,
+            pressed && rail.sessionRailActionPressed
+          ]}
           disabled={nav.createDisabled}
           onPress={() => {
             nav.openQuickCommands()
@@ -280,7 +282,11 @@ const wide = StyleSheet.create({
     letterSpacing: typography.sidebarLabelTracking,
     color: colors.textMuted
   },
+  // A long title truncates against the count instead of touching it; the count
+  // and the + button never shrink.
   headingCount: {
+    flexShrink: 0,
+    marginLeft: 6,
     fontSize: typography.sidebarLabelSize,
     color: colors.textMuted
   },
@@ -317,6 +323,7 @@ const wide = StyleSheet.create({
     color: colors.sidebarSelectionText
   },
   newSession: {
+    flexShrink: 0,
     alignItems: 'center',
     justifyContent: 'center',
     width: 44,
