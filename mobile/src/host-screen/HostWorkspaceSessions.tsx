@@ -302,7 +302,7 @@ const wide = StyleSheet.create({
   rowName: {
     flex: 1,
     minWidth: 0,
-    fontSize: typography.bodySize,
+    fontSize: typography.sidebarNameSize,
     fontWeight: '400',
     color: colors.textSecondary
   },
