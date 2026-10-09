@@ -230,7 +230,7 @@ const embeddedSplitStyles = StyleSheet.create({
     borderTopColor: colors.borderSubtle
   },
   sessionScroll: {
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: spacing.sm,
     paddingTop: spacing.xs
   },
   toolPane: {
