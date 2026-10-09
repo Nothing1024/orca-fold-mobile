@@ -1,6 +1,8 @@
-# Orca Mobile
+# Orca Fold Mobile
 
-React Native companion app for Orca. Monitor worktrees, view terminal output, and send commands from your phone.
+Unofficial foldable-screen build of the Orca mobile client. Not published by Lovecast Inc.
+
+React Native companion for a paired Orca desktop. Monitor worktrees, view terminal output, and send commands from a phone. The wide layout targets an unfolded foldable inner screen.
 
 Local development uses two processes:
 
