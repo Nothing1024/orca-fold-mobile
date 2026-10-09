@@ -19,6 +19,15 @@ function displayBranch(branch: string): string {
   return branch.replace(/^refs\/heads\//, '')
 }
 
+/**
+ * Text shown after the name on a non-child row. Empty when it would only repeat
+ * the name, e.g. a `main` worktree on branch `main`, or a name derived from the
+ * branch. Compared after trimming; case is significant.
+ */
+export function sidebarRowMeta(name: string, meta: string): string {
+  return meta.trim() === name.trim() ? '' : meta
+}
+
 /** Wide-sidebar workspace row: one line of name, branch and session count. */
 function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
   item,
@@ -34,6 +43,7 @@ function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
     : displayBranch(item.branch)
   const name = item.displayName || item.repo
   const isChild = role === 'child'
+  const rowMeta = sidebarRowMeta(name, metaText)
   const selected = item.isActive === true
 
   return (
@@ -66,6 +76,7 @@ function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
       <Text
         style={[
           isChild ? styles.childBranch : styles.name,
+          !isChild && rowMeta ? styles.nameBeforeMeta : null,
           selected && styles.nameSelected,
           item.unread && styles.nameUnread,
           isReadOnly && styles.readOnly
@@ -74,9 +85,9 @@ function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
       >
         {isChild ? metaText : name}
       </Text>
-      {isChild ? null : (
+      {isChild || !rowMeta ? null : (
         <Text style={[styles.meta, selected && styles.metaSelected]} numberOfLines={1}>
-          {metaText}
+          {rowMeta}
         </Text>
       )}
       {item.unread ? <View style={styles.unreadDot} /> : null}
@@ -123,9 +134,16 @@ const styles = StyleSheet.create({
   },
   name: {
     flexShrink: 1,
+    minWidth: 0,
     fontSize: typography.sidebarNameSize,
     fontWeight: '400',
     color: colors.textSecondary
+  },
+  // With a branch beside it the name keeps priority: it never shrinks below its
+  // own width, up to 60% of the row, and the branch takes what is left.
+  nameBeforeMeta: {
+    flexShrink: 0,
+    maxWidth: '60%'
   },
   nameSelected: {
     color: colors.textPrimary
@@ -143,12 +161,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentBlue
   },
   meta: {
+    flexShrink: 1,
+    minWidth: 0,
     fontFamily: typography.monoFamily,
     fontSize: typography.sidebarLabelSize,
     color: colors.textMuted
   },
   childBranch: {
     flexShrink: 1,
+    minWidth: 0,
     fontFamily: typography.monoFamily,
     fontSize: typography.metaSize,
     fontWeight: '400',
