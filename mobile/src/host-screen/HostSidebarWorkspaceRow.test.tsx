@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { describe, expect, it, vi } from 'vitest'
 import { colors, radii, typography } from '../theme/mobile-theme'
-import { HostSidebarWorkspaceRow } from './HostSidebarWorkspaceRow'
+import { HostSidebarWorkspaceRow, sidebarRowMeta } from './HostSidebarWorkspaceRow'
 import type { WorktreeListRowItem } from '../components/WorktreeListRow'
 
 vi.mock('react-native', () => ({
@@ -109,5 +109,59 @@ describe('the wide sidebar workspace row', () => {
     const flat = pressedStyle(tree)
     expect(flat.backgroundColor).toBeUndefined()
     expect(flat.borderColor).toBe('transparent')
+  })
+
+  it('keeps the name ahead of a long branch, which truncates instead', () => {
+    const tree = render({
+      isActive: true,
+      displayName: 'orca-mobile',
+      branch: 'refs/heads/feat/merged-workspace-session-nav'
+    })
+    expect(texts(tree)).toEqual(['orca-mobile', 'feat/merged-workspace-session-nav', '3'])
+    const [name, branch, count] = tree.root.findAll((node) => typeName(node.type) === 'Text')
+    const flat = (node: typeof name): Record<string, unknown> =>
+      Object.assign({}, ...[node?.props.style].flat().filter(Boolean))
+    expect(flat(name)).toMatchObject({ flexShrink: 0, maxWidth: '60%' })
+    expect(name?.props.numberOfLines).toBe(1)
+    expect(flat(branch)).toMatchObject({ flexShrink: 1, minWidth: 0 })
+    expect(branch?.props.numberOfLines).toBe(1)
+    expect(flat(count).flexShrink).toBeUndefined()
+  })
+
+  it('hides the branch when it repeats the name', () => {
+    const alone = render({
+      displayName: 'feat/merged-workspace-session-nav',
+      branch: 'refs/heads/feat/merged-workspace-session-nav'
+    })
+    expect(texts(alone)).toEqual(['feat/merged-workspace-session-nav', '3'])
+    const nameStyle = Object.assign(
+      {},
+      ...[alone.root.findAll((node) => typeName(node.type) === 'Text')[0]?.props.style]
+        .flat()
+        .filter(Boolean)
+    )
+    // Alone on the row, the name may use the whole width.
+    expect(nameStyle).toMatchObject({ flexShrink: 1, minWidth: 0 })
+    expect(nameStyle.maxWidth).toBeUndefined()
+    expect(texts(render({ displayName: 'main', branch: 'refs/heads/main' }))).toEqual(['main', '3'])
+    expect(
+      texts(render({ displayName: 'feat/x', branch: 'refs/heads/feat/x', isActive: true }))
+    ).toEqual(['feat/x', '3'])
+    expect(texts(render({ displayName: '', repo: 'main', branch: 'main' }))).toEqual(['main', '3'])
+  })
+
+  it('keeps a child row on its branch even when it matches the name', () => {
+    const tree = render({ displayName: 'main', branch: 'refs/heads/main' }, false, 'child')
+    expect(texts(tree)).toEqual(['main', '3'])
+  })
+})
+
+describe('sidebarRowMeta', () => {
+  it('drops a meta equal to the name after trimming, keeps anything else', () => {
+    expect(sidebarRowMeta('main', 'main')).toBe('')
+    expect(sidebarRowMeta(' main ', 'main')).toBe('')
+    expect(sidebarRowMeta('Main', 'main')).toBe('main')
+    expect(sidebarRowMeta('orca-mobile', 'main')).toBe('main')
+    expect(sidebarRowMeta('main', '')).toBe('')
   })
 })
