@@ -107,6 +107,7 @@ function listWith(fields: {
   embedded: boolean
   sections: { key: string; title: string; data: ReturnType<typeof worktree>[] }[]
   displayWorktrees: ReturnType<typeof worktree>[]
+  groupMode?: string
 }) {
   const controller = {
     actions: {
@@ -147,7 +148,7 @@ function listWith(fields: {
       setActionError: () => {},
       catalogError: null,
       collapsedGroups: new Set(),
-      groupMode: 'none',
+      groupMode: fields.groupMode ?? 'none',
       pinnedIds: new Set(),
       repoIconsByName: new Map(),
       search: '',
@@ -339,7 +340,7 @@ describe('embedded sidebar splits worktrees and sessions', () => {
     expect(named(tree, 'HostSidebarBottomBar')).toEqual([])
   })
 
-  it('drops the All group header on the wide sidebar and keeps it on the phone', () => {
+  it('drops the All and repo headers on the wide sidebar and keeps them on the phone', () => {
     const all = [{ key: 'all', title: 'All', data: [selected, following] }]
     const header = (tree: ReactTestRenderer) => {
       const [list] = named(tree, 'SectionList')
@@ -361,6 +362,30 @@ describe('embedded sidebar splits worktrees and sessions', () => {
       displayWorktrees: [selected, following]
     })
     expect(header(phone)).toBe('All')
+
+    const repo = [{ key: 'repo:orca', title: 'orca', data: [selected, following] }]
+    const repoHeader = (tree: ReactTestRenderer) => {
+      const [list] = named(tree, 'SectionList')
+      if (list === undefined) {
+        throw new Error('expected a worktree list')
+      }
+      const rendered = list.props.renderSectionHeader({ section: repo[0] })
+      return rendered?.props.accessibilityLabel ?? null
+    }
+    const wideRepo = renderList({
+      embedded: true,
+      sections: repo,
+      displayWorktrees: [selected, following],
+      groupMode: 'repo'
+    })
+    expect(repoHeader(wideRepo)).toBeNull()
+    const phoneRepo = renderList({
+      embedded: false,
+      sections: repo,
+      displayWorktrees: [selected, following],
+      groupMode: 'repo'
+    })
+    expect(repoHeader(phoneRepo)).toBe('orca')
   })
 
   it('leaves the phone page nesting sessions under the selected row, with the floating button', () => {

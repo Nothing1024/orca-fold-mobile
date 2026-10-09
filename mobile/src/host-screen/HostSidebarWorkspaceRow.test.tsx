@@ -11,10 +11,8 @@ vi.mock('react-native', () => ({
   Text: 'Text',
   View: 'View'
 }))
-vi.mock('lucide-react-native', () => ({ Pin: 'Pin' }))
+vi.mock('lucide-react-native', () => ({ GitBranch: 'GitBranch', Pin: 'Pin' }))
 vi.mock('../platform/haptics', () => ({ triggerMediumImpact: vi.fn() }))
-vi.mock('../components/AgentSpinner', () => ({ AgentSpinner: 'AgentSpinner' }))
-vi.mock('../components/MobileRepoIcon', () => ({ MobileRepoIcon: 'MobileRepoIcon' }))
 
 function item(overrides: Partial<WorktreeListRowItem> = {}): WorktreeListRowItem {
   return {
@@ -30,17 +28,19 @@ function item(overrides: Partial<WorktreeListRowItem> = {}): WorktreeListRowItem
   }
 }
 
-function render(overrides: Partial<WorktreeListRowItem> = {}, showPin = false): ReactTestRenderer {
+function render(
+  overrides: Partial<WorktreeListRowItem> = {},
+  showPin = false,
+  role: 'main' | 'child' | 'standalone' = 'standalone'
+): ReactTestRenderer {
   const rendered: { tree: ReactTestRenderer | null } = { tree: null }
   act(() => {
     rendered.tree = create(
       createElement(HostSidebarWorkspaceRow, {
         item: item(overrides),
         isReadOnly: false,
-        repoColor: '#f97316',
-        repoIcon: null,
-        status: 'active',
         showPin,
+        role,
         onPress: () => {}
       })
     )
@@ -80,8 +80,17 @@ describe('the wide sidebar workspace row', () => {
     })
     expect(texts(tree)).toEqual(['orca-mobile', 'feature/sidebar', '3'])
     expect(tree.root.findAll((node) => typeName(node.type) === 'Pin')).toHaveLength(0)
-    expect(tree.root.findAll((node) => typeName(node.type) === 'AgentSpinner')).toHaveLength(1)
-    expect(tree.root.findAll((node) => typeName(node.type) === 'MobileRepoIcon')).toHaveLength(1)
+    expect(tree.root.findAll((node) => typeName(node.type) === 'GitBranch')).toHaveLength(0)
+    expect(flat.height).toBe(28)
+  })
+
+  it('indents a child row and shows only its branch', () => {
+    const tree = render({ isActive: true, liveTerminalCount: 1 }, false, 'child')
+    expect(texts(tree)).toEqual(['feature/sidebar', '1'])
+    const branch = tree.root.find((node) => typeName(node.type) === 'GitBranch')
+    expect(branch.props.size).toBe(12)
+    expect(branch.props.color).toBe(colors.sidebarSelectionText)
+    expect(pressedStyle(tree).paddingLeft).toBe(15)
   })
 
   it('drops a zero session count and shows the pin', () => {

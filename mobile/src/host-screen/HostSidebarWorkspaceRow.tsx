@@ -1,23 +1,16 @@
-import { Pin } from 'lucide-react-native'
+import { GitBranch, Pin } from 'lucide-react-native'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import type { AgentWorkingMode } from '../../../src/shared/agent-status-types'
-import type { MobileRenderableRepoIcon } from './host-screen-reply-schema'
-import { AgentSpinner } from '../components/AgentSpinner'
-import { MobileRepoIcon } from '../components/MobileRepoIcon'
 import { triggerMediumImpact } from '../platform/haptics'
 import { colors, radii, spacing, typography } from '../theme/mobile-theme'
 import type { WorktreeListRowItem } from '../components/WorktreeListRow'
-
-type WorktreeRollupStatus = 'working' | 'active' | 'permission' | 'done' | 'inactive'
+import type { SidebarRowRole } from './workspace-sidebar-clusters'
 
 type Props<T extends WorktreeListRowItem> = {
   item: T
   isReadOnly: boolean
-  repoColor: string
-  repoIcon?: MobileRenderableRepoIcon | null
-  status: WorktreeRollupStatus
-  workingMode?: AgentWorkingMode
   showPin?: boolean
+  /** Wide sidebar only. A child indents and shows the branch instead of the repo name. */
+  role?: SidebarRowRole
   onPress: (item: T) => void
   onLongPress?: (item: T) => void
 }
@@ -26,15 +19,12 @@ function displayBranch(branch: string): string {
   return branch.replace(/^refs\/heads\//, '')
 }
 
-/** Wide-sidebar workspace row: icon, name, branch, session count. No phone-row chrome. */
+/** Wide-sidebar workspace row: one line of name, branch and session count. */
 function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
   item,
   isReadOnly,
-  repoColor,
-  repoIcon,
-  status,
-  workingMode,
   showPin = false,
+  role = 'standalone',
   onPress,
   onLongPress
 }: Props<T>) {
@@ -43,15 +33,19 @@ function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
     ? item.comment?.trim() || item.path || 'Folder'
     : displayBranch(item.branch)
   const name = item.displayName || item.repo
+  const isChild = role === 'child'
+  const selected = item.isActive === true
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={name}
-      accessibilityState={{ selected: item.isActive === true, disabled: isReadOnly }}
+      accessibilityLabel={isChild ? metaText : name}
+      accessibilityState={{ selected, disabled: isReadOnly }}
+      hitSlop={{ top: 8, bottom: 8 }}
       style={({ pressed }) => [
         styles.row,
-        item.isActive && styles.rowSelected,
+        isChild && styles.rowChild,
+        selected && styles.rowSelected,
         pressed && styles.rowPressed
       ]}
       disabled={isReadOnly}
@@ -66,29 +60,25 @@ function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
       }
       delayLongPress={400}
     >
-      <View style={styles.iconSlot}>
-        <MobileRepoIcon repoIcon={repoIcon} size={16} color={repoColor} />
-        <View style={styles.statusDot}>
-          <AgentSpinner status={status} workingMode={workingMode ?? item.workingMode} />
-        </View>
-      </View>
-      <View style={styles.copy}>
-        <View style={styles.nameLine}>
-          <Text
-            style={[styles.name, item.unread && styles.nameUnread, isReadOnly && styles.readOnly]}
-            numberOfLines={1}
-          >
-            {name}
-          </Text>
-          {item.unread ? <View style={styles.unreadDot} /> : null}
-          {showPin ? <Pin size={11} color={colors.textMuted} /> : null}
-        </View>
-        <Text style={[styles.meta, item.isActive && styles.metaSelected]} numberOfLines={1}>
+      {isChild ? (
+        <GitBranch size={12} color={selected ? colors.sidebarSelectionText : colors.textMuted} />
+      ) : null}
+      <Text
+        style={[styles.name, item.unread && styles.nameUnread, isReadOnly && styles.readOnly]}
+        numberOfLines={1}
+      >
+        {isChild ? metaText : name}
+      </Text>
+      {isChild ? null : (
+        <Text style={[styles.meta, selected && styles.metaSelected]} numberOfLines={1}>
           {metaText}
         </Text>
-      </View>
+      )}
+      {item.unread ? <View style={styles.unreadDot} /> : null}
+      {showPin ? <Pin size={11} color={colors.textMuted} /> : null}
+      <View style={styles.grow} />
       {item.liveTerminalCount > 0 ? (
-        <Text style={[styles.count, item.isActive && styles.countSelected]}>
+        <Text style={[styles.count, selected && styles.countSelected]}>
           {item.liveTerminalCount}
         </Text>
       ) : null}
@@ -105,10 +95,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+    height: 28,
     marginHorizontal: spacing.sm,
-    marginVertical: 2,
-    paddingVertical: 7,
-    paddingHorizontal: 10,
+    marginVertical: 1,
+    paddingHorizontal: spacing.sm,
     borderRadius: radii.sidebarRow,
     borderWidth: 1,
     borderColor: 'transparent'
@@ -117,27 +107,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sidebarSelectionFill,
     borderColor: colors.sidebarSelectionBorder
   },
+  rowChild: {
+    paddingLeft: 15
+  },
   rowPressed: {
     backgroundColor: colors.sidebarIconPressed
   },
-  iconSlot: {
-    width: 16,
-    height: 16
-  },
-  statusDot: {
-    position: 'absolute',
-    right: -4,
-    bottom: -4
-  },
-  copy: {
-    flex: 1,
-    minWidth: 0
-  },
-  nameLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    minWidth: 0
+  grow: {
+    flex: 1
   },
   name: {
     flexShrink: 1,
@@ -158,7 +135,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentBlue
   },
   meta: {
-    marginTop: 1,
     fontFamily: typography.monoFamily,
     fontSize: typography.sidebarLabelSize,
     color: colors.textMuted

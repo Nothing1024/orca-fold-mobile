@@ -10,6 +10,7 @@ import {
 } from '../session/mobile-session-nav-bridge'
 import { colors, spacing, typography } from '../theme/mobile-theme'
 import { getWorktreeRowIdentity } from '../worktree/worktree-host-row-identity'
+import { sidebarClusterRows } from './workspace-sidebar-clusters'
 import { getWorktreeStatus, isWorktreePinned } from '../worktree/workspace-list-sections'
 import { repoColor } from '../worktree/repo-color'
 import { hostScreenStyles as styles } from './host-screen-styles'
@@ -40,13 +41,29 @@ export function HostWorktreeSectionList({
     state
   } = controller
   const { rawSections, sections, uniqueRepoColors } = sectionsResult
+  // The wide list keeps SectionList's row type and looks the cluster role up by id.
+  const clusterRole = new Map(
+    embedded
+      ? sections.flatMap((section) =>
+          sidebarClusterRows(section.data).map(
+            (entry) => [entry.item.worktreeId, entry.role] as const
+          )
+        )
+      : []
+  )
+  const visibleSections = embedded
+    ? sections.map((section) => ({
+        ...section,
+        data: sidebarClusterRows(section.data).map((entry) => entry.item)
+      }))
+    : sections
   if (sections.length === 0) {
     return null
   }
   return (
     <SectionList
       ref={activeWorktreeScroll.sectionListRef}
-      sections={sections}
+      sections={visibleSections}
       keyExtractor={(w) => w.sectionListKey ?? getWorktreeRowIdentity(w)}
       stickySectionHeadersEnabled={false}
       // Why: keep the search IME up while tapping clear / scrolling results.
@@ -67,7 +84,11 @@ export function HostWorktreeSectionList({
       renderSectionHeader={({ section }) => {
         // The ungrouped catalog is one synthetic "All" section. The wide sidebar has no group
         // header for it; the phone keeps the header.
-        if (!section.title || (embedded && state.groupMode === 'none')) {
+        // Repo grouping draws its own clusters, so its header would repeat the repo.
+        if (
+          !section.title ||
+          (embedded && (state.groupMode === 'none' || state.groupMode === 'repo'))
+        ) {
           return null
         }
         const isCollapsed = state.collapsedGroups.has(section.key)
@@ -121,22 +142,20 @@ export function HostWorktreeSectionList({
           colors={[colors.textSecondary]}
         />
       }
-      renderItem={({ item }) => (
-        <View>
-          {embedded ? (
-            <HostSidebarWorkspaceRow
-              item={item}
-              isReadOnly={isReadOnly}
-              status={getWorktreeStatus(item)}
-              repoColor={uniqueRepoColors.get(item.repo) ?? repoColor(item.repo)}
-              repoIcon={state.repoIconsByName.get(item.repo) ?? null}
-              showPin={isWorktreePinned(item, state.pinnedIds)}
-              onPress={actions.openWorktreeSession}
-              onLongPress={
-                item.workspaceKind === 'folder-workspace' ? undefined : state.setActionTarget
-              }
-            />
-          ) : (
+      renderItem={({ item }) =>
+        embedded ? (
+          <HostSidebarWorkspaceRow
+            item={item}
+            isReadOnly={isReadOnly}
+            role={clusterRole.get(item.worktreeId) ?? 'standalone'}
+            showPin={isWorktreePinned(item, state.pinnedIds)}
+            onPress={actions.openWorktreeSession}
+            onLongPress={
+              item.workspaceKind === 'folder-workspace' ? undefined : state.setActionTarget
+            }
+          />
+        ) : (
+          <View>
             <WorktreeListRow
               item={item}
               isReadOnly={isReadOnly}
@@ -152,12 +171,12 @@ export function HostWorktreeSectionList({
               }
               onToggleLineage={settings.toggleWorktreeLineage}
             />
-          )}
-          {!embedded && sessionNavMatchesWorktree(sessionNav, hostId, item.worktreeId) ? (
-            <HostWorkspaceSessions nav={sessionNav} onActivated={actions.onWorkspaceActivated} />
-          ) : null}
-        </View>
-      )}
+            {sessionNavMatchesWorktree(sessionNav, hostId, item.worktreeId) ? (
+              <HostWorkspaceSessions nav={sessionNav} onActivated={actions.onWorkspaceActivated} />
+            ) : null}
+          </View>
+        )
+      }
     />
   )
 }
