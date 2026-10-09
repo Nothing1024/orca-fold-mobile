@@ -47,9 +47,9 @@ export function HostWorkspaceListStates(
 
 const styles = StyleSheet.create({
   centered: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    paddingVertical: spacing.lg
   },
   emptyText: {
     color: colors.textSecondary,
