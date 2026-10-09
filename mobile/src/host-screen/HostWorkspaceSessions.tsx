@@ -273,7 +273,7 @@ const wide = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     fontSize: typography.sidebarLabelSize,
-    fontWeight: '600',
+    fontWeight: '400',
     letterSpacing: typography.sidebarLabelTracking,
     color: colors.textMuted
   },
@@ -287,7 +287,7 @@ const wide = StyleSheet.create({
     gap: spacing.sm,
     height: 28,
     marginHorizontal: spacing.sm,
-    marginVertical: 1,
+    marginTop: 1,
     paddingHorizontal: spacing.sm,
     borderRadius: radii.sidebarRow,
     borderWidth: 1,
@@ -301,7 +301,8 @@ const wide = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     fontSize: typography.bodySize,
-    color: colors.textPrimary
+    fontWeight: '400',
+    color: colors.textSecondary
   },
   rowNameActive: {
     fontWeight: '600'
