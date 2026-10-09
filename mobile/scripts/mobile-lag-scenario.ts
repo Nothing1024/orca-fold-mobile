@@ -63,7 +63,8 @@ export function createMockWorktrees(
       path: `${repo.path}/worktrees/${name}`,
       branch: index % 6 === 0 ? 'main' : `feature/mobile-lag-${index + 1}`,
       isArchived: false,
-      isMainWorktree: false,
+      // Off unless MOCK_MAIN_WORKTREES=1, so the shared 6768 catalog stays flat.
+      isMainWorktree: process.env.MOCK_MAIN_WORKTREES === '1' && index % 6 === 0,
       hasHostSidebarActivity: index % 5 !== 0,
       parentWorktreeId: null,
       childWorktreeIds: [],
