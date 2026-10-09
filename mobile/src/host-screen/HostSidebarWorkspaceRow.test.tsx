@@ -91,7 +91,7 @@ describe('the wide sidebar workspace row', () => {
     expect(branch.props.size).toBe(12)
     expect(branch.props.color).toBe(colors.sidebarSelectionText)
     expect(pressedStyle(tree).paddingLeft).toBe(20)
-    expect(pressedStyle(tree).gap).toBe(5)
+    expect(pressedStyle(tree).gap).toBe(7)
     expect(pressedStyle(tree).marginTop).toBe(1)
   })
 

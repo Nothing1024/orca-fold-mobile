@@ -101,7 +101,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     height: 30,
-    paddingHorizontal: spacing.sm,
+    // Rows sit 12 in from the sidebar edge and pad 8, so the label lines up at 20.
+    paddingHorizontal: 20,
     gap: spacing.sm
   },
   label: {

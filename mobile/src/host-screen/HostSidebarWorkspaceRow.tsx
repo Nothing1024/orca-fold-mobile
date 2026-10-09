@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 7,
     height: 28,
     marginHorizontal: spacing.md,
     marginTop: 1,
