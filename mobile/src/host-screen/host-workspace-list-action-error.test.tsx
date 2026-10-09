@@ -35,6 +35,9 @@ vi.mock('./HostSidebarWorkspacesHeader', () => ({
 vi.mock('./HostSidebarWorkspaceTools', () => ({
   HostSidebarWorkspaceTools: 'HostSidebarWorkspaceTools'
 }))
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 })
+}))
 vi.mock('../session/mobile-session-nav-bridge', () => ({
   useMobileSessionNav: () => null,
   sessionNavMatchesWorktree: () => false

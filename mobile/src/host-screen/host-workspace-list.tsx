@@ -1,4 +1,5 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AuthFailedBanner } from '../components/AuthFailedBanner'
 import { HostDiagnosticsLink } from '../components/HostDiagnosticsLink'
 import { HostRouteNoticeBanner } from '../components/HostRouteNoticeBanner'
@@ -38,6 +39,8 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
   } = controller
   const { sections } = sectionsResult
   const sessionNav = useMobileSessionNav()
+  // The wide sidebar draws edge to edge, so the pinned tool row has to clear the nav bar itself.
+  const insets = useSafeAreaInsets()
   const openWorktreeListed =
     sessionNav != null &&
     displayWorktrees.some((worktree) =>
@@ -153,7 +156,10 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
             </ScrollView>
           ) : null}
         </View>
-        <View style={embeddedSplitStyles.toolPane} accessibilityLabel="Workspace tools">
+        <View
+          style={[embeddedSplitStyles.toolPane, { paddingBottom: insets.bottom }]}
+          accessibilityLabel="Workspace tools"
+        >
           <HostSidebarWorkspaceTools controller={controller} />
         </View>
       </View>

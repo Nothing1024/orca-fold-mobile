@@ -46,6 +46,9 @@ vi.mock('./HostSidebarWorkspacesHeader', () => ({
 vi.mock('./HostSidebarWorkspaceTools', () => ({
   HostSidebarWorkspaceTools: 'HostSidebarWorkspaceTools'
 }))
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 48, left: 0 })
+}))
 vi.mock('../session/mobile-session-nav-bridge', async () => {
   const actual = await vi.importActual<typeof import('../session/mobile-session-nav-bridge')>(
     '../session/mobile-session-nav-bridge'
@@ -289,7 +292,10 @@ describe('embedded sidebar splits worktrees and sessions', () => {
       maxHeight: '54%'
     })
     expect(toolsRegion?.props.accessibilityLabel).toBe('Workspace tools')
-    expect(toolsRegion?.props.style).toMatchObject({ flexShrink: 0 })
+    expect(toolsRegion?.props.style).toEqual([
+      expect.objectContaining({ flexShrink: 0 }),
+      { paddingBottom: 48 }
+    ])
 
     const workspaceNames = childNames(region(tree, 'Workspaces'))
     expect(workspaceNames.indexOf('HostSidebarWorkspacesHeader')).toBeGreaterThanOrEqual(0)
