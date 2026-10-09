@@ -38,6 +38,9 @@ export type WorktreeListRowItem = {
   /** Resolved host for the display label; present when legacy rows omit hostId. */
   hostContextHostId?: ExecutionHostId
   repo: string
+  repoId?: string
+  /** Absent on hosts that predate the field; the sidebar then treats main/master as the main row. */
+  isMainWorktree?: boolean
   branch: string
   displayName: string
   path?: string
