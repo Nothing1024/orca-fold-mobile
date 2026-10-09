@@ -288,9 +288,10 @@ describe('embedded sidebar splits worktrees and sessions', () => {
     })
     expect(sessionsRegion?.props.accessibilityLabel).toBe('Sessions')
     expect(sessionsRegion?.props.style).toMatchObject({
+      flexGrow: 1,
       flexShrink: 1,
-      flexBasis: 'auto',
-      maxHeight: '54%'
+      flexBasis: 0,
+      minHeight: 0
     })
     expect(toolsRegion?.props.accessibilityLabel).toBe('Workspace tools')
     expect(toolsRegion?.props.style).toEqual([

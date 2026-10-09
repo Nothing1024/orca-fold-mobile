@@ -207,12 +207,11 @@ const embeddedSplitStyles = StyleSheet.create({
     maxHeight: '50%',
     minHeight: 132
   },
-  // Keep its content up to about 54% of the sidebar, then scroll.
+  // Take whatever the workspaces cap leaves, so the tool row stays at the bottom.
   sessionsPane: {
-    flexGrow: 0,
+    flexGrow: 1,
     flexShrink: 1,
-    flexBasis: 'auto',
-    maxHeight: '54%',
+    flexBasis: 0,
     minHeight: 0,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.borderSubtle
