@@ -283,6 +283,7 @@ describe('embedded sidebar splits worktrees and sessions', () => {
       flexGrow: 1,
       flexShrink: 1,
       flexBasis: 0,
+      maxHeight: '50%',
       minHeight: 132
     })
     expect(sessionsRegion?.props.accessibilityLabel).toBe('Sessions')

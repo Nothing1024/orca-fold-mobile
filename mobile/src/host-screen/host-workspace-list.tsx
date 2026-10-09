@@ -198,12 +198,13 @@ const embeddedSplitStyles = StyleSheet.create({
     minHeight: 0,
     backgroundColor: colors.sidebarPanel
   },
-  // Hug the rows, then give height up first. Below ~132 the list scrolls inside.
-  // flexBasis 0 is what makes the cap real: auto basis sizes to content and ignores maxHeight.
+  // Take spare height, but never more than half the sidebar. flexBasis 0 is what
+  // makes the cap real: auto basis sizes to content and ignores maxHeight.
   workspacesPane: {
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
+    maxHeight: '50%',
     minHeight: 132
   },
   // Keep its content up to about 54% of the sidebar, then scroll.
