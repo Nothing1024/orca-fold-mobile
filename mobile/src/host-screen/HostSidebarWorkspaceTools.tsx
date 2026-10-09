@@ -83,13 +83,19 @@ export function HostSidebarWorkspaceTools({ controller }: { controller: HostScre
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
+    gap: spacing.xs,
+    height: 59,
+    paddingTop: 7,
+    paddingHorizontal: 10,
+    paddingBottom: 9,
+    backgroundColor: 'rgba(255, 255, 255, 0.024)',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.borderSubtle
   },
   tool: {
     flex: 1,
     minWidth: 0,
-    minHeight: 44,
+    height: 42,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 2,

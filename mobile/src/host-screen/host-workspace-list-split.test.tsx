@@ -5,7 +5,7 @@ import type { MobileSessionNavSnapshot } from '../session/mobile-session-nav-bri
 import { FLOATING_WORKSPACE_WORKTREE_ID } from '../session/floating-workspace'
 import { spacing } from '../theme/mobile-theme'
 import { FAB_SIZE } from '../components/NewWorkspaceFab'
-import { HostWorkspaceList } from './host-workspace-list'
+import { childWorktreeTitle, HostWorkspaceList } from './host-workspace-list'
 
 const harness = vi.hoisted(() => {
   const state: { nav: MobileSessionNavSnapshot | null } = { nav: null }
@@ -154,6 +154,7 @@ function listWith(fields: {
       search: '',
       setSearch: () => {},
       showSearch: false,
+      worktrees: fields.displayWorktrees,
       worktreesLoaded: true,
       setActionTarget: () => {},
       setConfirmRemoveHost: () => {}
@@ -229,6 +230,18 @@ function sessionCount(tree: ReactTestRenderer): number {
 const selected = worktree('wt-a', 'narwhal')
 const following = worktree('wt-b', 'otter')
 const sections = [{ key: 'all', title: '', data: [selected, following] }]
+
+describe('childWorktreeTitle', () => {
+  it('uses the branch of a child worktree and ignores a main one', () => {
+    const rows = [
+      { worktreeId: 'main', branch: 'refs/heads/main', isMainWorktree: true },
+      { worktreeId: 'child', branch: 'refs/heads/fix/sidebar', isMainWorktree: false }
+    ]
+    expect(childWorktreeTitle(rows, 'child')).toBe('fix/sidebar')
+    expect(childWorktreeTitle(rows, 'main')).toBeNull()
+    expect(childWorktreeTitle(rows, 'missing')).toBeNull()
+  })
+})
 
 describe('embedded sidebar splits worktrees and sessions', () => {
   it('keeps the selected worktree row free of sessions and scrolls them in the lower pane', () => {

@@ -92,6 +92,7 @@ function listWith(fields: { actionError: string; setActionError: (value: string)
       repoIconsByName: new Map(),
       search: '',
       showSearch: false,
+      worktrees: [],
       worktreesLoaded: true
     }
   }

@@ -64,7 +64,12 @@ function HostSidebarWorkspaceRowComponent<T extends WorktreeListRowItem>({
         <GitBranch size={12} color={selected ? colors.sidebarSelectionText : colors.textMuted} />
       ) : null}
       <Text
-        style={[styles.name, item.unread && styles.nameUnread, isReadOnly && styles.readOnly]}
+        style={[
+          isChild ? styles.childBranch : styles.name,
+          selected && styles.nameSelected,
+          item.unread && styles.nameUnread,
+          isReadOnly && styles.readOnly
+        ]}
         numberOfLines={1}
       >
         {isChild ? metaText : name}
@@ -94,10 +99,10 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: 9,
     height: 28,
     marginHorizontal: spacing.sm,
-    marginVertical: 1,
+    marginTop: 1,
     paddingHorizontal: spacing.sm,
     borderRadius: radii.sidebarRow,
     borderWidth: 1,
@@ -108,7 +113,7 @@ const styles = StyleSheet.create({
     borderColor: colors.sidebarSelectionBorder
   },
   rowChild: {
-    paddingLeft: 15
+    paddingLeft: 21
   },
   rowPressed: {
     backgroundColor: colors.sidebarIconPressed
@@ -119,7 +124,10 @@ const styles = StyleSheet.create({
   name: {
     flexShrink: 1,
     fontSize: typography.bodySize,
-    fontWeight: '600',
+    fontWeight: '400',
+    color: colors.textSecondary
+  },
+  nameSelected: {
     color: colors.textPrimary
   },
   nameUnread: {
@@ -138,6 +146,13 @@ const styles = StyleSheet.create({
     fontFamily: typography.monoFamily,
     fontSize: typography.sidebarLabelSize,
     color: colors.textMuted
+  },
+  childBranch: {
+    flexShrink: 1,
+    fontFamily: typography.monoFamily,
+    fontSize: typography.metaSize,
+    fontWeight: '400',
+    color: colors.textSecondary
   },
   metaSelected: {
     color: colors.sidebarSelectionText

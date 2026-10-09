@@ -151,6 +151,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
               <HostWorkspaceSessions
                 nav={embeddedSessionNav}
                 hideWorkspaceTools
+                titleOverride={childWorktreeTitle(state.worktrees, embeddedSessionNav.worktreeId)}
                 onActivated={actions.onWorkspaceActivated}
               />
             </ScrollView>
@@ -190,6 +191,18 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
       />
     </>
   )
+}
+
+/** A child worktree's session pane is titled with its branch, even after a reload. */
+export function childWorktreeTitle(
+  worktrees: readonly { worktreeId: string; branch: string; isMainWorktree?: boolean }[],
+  worktreeId: string
+): string | null {
+  const match = worktrees.find((worktree) => worktree.worktreeId === worktreeId)
+  if (match?.isMainWorktree !== false) {
+    return null
+  }
+  return match.branch.replace(/^refs\/heads\//, '')
 }
 
 const embeddedSplitStyles = StyleSheet.create({
