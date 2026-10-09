@@ -21,6 +21,7 @@ export function useHostWorktreeActions(args: {
   fetchWorktrees: (options?: { allowDuringModal?: boolean }) => Promise<void>
   forgetHostClient: ReturnType<typeof useForgetHostClient>
   hostId: string | undefined
+  onWorkspaceActivated?: () => void
   pathname: string
   router: ReturnType<typeof useRouter>
   state: HostScreenState
@@ -32,6 +33,7 @@ export function useHostWorktreeActions(args: {
     fetchWorktrees,
     forgetHostClient,
     hostId,
+    onWorkspaceActivated,
     pathname,
     router,
     state
@@ -199,23 +201,31 @@ export function useHostWorktreeActions(args: {
       // `?? ''` and not a cast: the hook takes `hostId` optional and every other member guards it,
       // so an absent one builds `/h//session/...` — a pathname the shell's segment rule refuses —
       // rather than the string "undefined", which it would accept as a host named undefined.
-      const target = `/h/${encodeURIComponent(hostId ?? '')}/session/${encodeURIComponent(item.worktreeId)}?name=${encodeURIComponent(item.displayName || item.repo)}`
+      // A child worktree's row shows its branch, so the session title has to match.
+      const label =
+        item.isMainWorktree === false
+          ? item.branch.replace(/^refs\/heads\//, '')
+          : item.displayName || item.repo
+      const target = `/h/${encodeURIComponent(hostId ?? '')}/session/${encodeURIComponent(item.worktreeId)}?name=${encodeURIComponent(label)}`
       navigateFromHostList(target)
+      onWorkspaceActivated?.()
     },
-    [client, connState, hostId, navigateFromHostList]
+    [client, connState, hostId, navigateFromHostList, onWorkspaceActivated]
   )
 
   const openFloatingWorkspace = useCallback(() => {
     // Why: no worktree.activate here — the floating sentinel has no worktree
     // record; session.tabs.list hydrates its host-owned tabs on open.
     navigateFromHostList(floatingWorkspaceSessionPath(hostId))
-  }, [hostId, navigateFromHostList])
+    onWorkspaceActivated?.()
+  }, [hostId, navigateFromHostList, onWorkspaceActivated])
 
   return {
     handleDeleteWorktree,
     handleRemoveHost,
     leaveHost,
     navigateFromHostList,
+    onWorkspaceActivated,
     openFloatingWorkspace,
     openNewWorktreeModal,
     openWorktreeSession,

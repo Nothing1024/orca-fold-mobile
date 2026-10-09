@@ -2,6 +2,7 @@ import { createElement } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { describe, expect, it, vi } from 'vitest'
 
+vi.mock('expo-router', () => ({ useLocalSearchParams: () => ({}) }))
 vi.mock('react-native', () => ({
   Pressable: 'Pressable',
   RefreshControl: 'RefreshControl',
@@ -25,6 +26,26 @@ vi.mock('../components/NewWorkspaceFab', () => ({
   FAB_SIZE: 56
 }))
 vi.mock('../components/WorktreeListRow', () => ({ WorktreeListRow: 'WorktreeListRow' }))
+vi.mock('./HostSidebarWorkspaceRow', () => ({
+  HostSidebarWorkspaceRow: 'HostSidebarWorkspaceRow'
+}))
+vi.mock('./HostWorkspaceSessions', () => ({ HostWorkspaceSessions: 'HostWorkspaceSessions' }))
+vi.mock('./HostSidebarWorkspacesHeader', () => ({
+  HostSidebarWorkspacesHeader: 'HostSidebarWorkspacesHeader'
+}))
+vi.mock('./HostSidebarWorkspaceTools', () => ({
+  HostSidebarWorkspaceTools: 'HostSidebarWorkspaceTools'
+}))
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 })
+}))
+vi.mock('../session/mobile-session-nav-bridge', () => ({
+  useMobileSessionNav: () => null,
+  sessionNavMatchesWorktree: () => false
+}))
+vi.mock('../session/floating-workspace', () => ({
+  isFloatingWorkspaceWorktreeId: () => false
+}))
 vi.mock('../worktree/host-workspace-list-states', () => ({
   HostWorkspaceListStates: 'HostWorkspaceListStates'
 }))
@@ -72,6 +93,7 @@ function listWith(fields: { actionError: string; setActionError: (value: string)
       repoIconsByName: new Map(),
       search: '',
       showSearch: false,
+      worktrees: [],
       worktreesLoaded: true
     }
   }

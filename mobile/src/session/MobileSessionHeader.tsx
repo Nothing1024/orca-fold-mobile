@@ -78,7 +78,7 @@ export function MobileSessionHeader({ controller, onOpenSessionRail }: MobileSes
           onPress={requestLeaveSession}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel="Back to worktrees"
+          accessibilityLabel="Back to hosts"
         >
           <ChevronLeft size={22} color={colors.textSecondary} strokeWidth={2.2} />
         </Pressable>

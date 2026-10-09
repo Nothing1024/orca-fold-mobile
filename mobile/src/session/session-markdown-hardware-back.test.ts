@@ -36,28 +36,38 @@ import {
 } from './use-mobile-session-markdown-actions'
 import type { MarkdownDocState } from './mobile-session-route-types'
 
-const leaves: { back: (() => void) | null; replaced: string[] } = { back: null, replaced: [] }
+const leaves: { back: (() => void) | null; replaced: string[]; dismissed: string[] } = {
+  back: null,
+  replaced: [],
+  dismissed: []
+}
 
-/** The three members the hook calls, which is all a probe of it can honestly stand behind. */
-const probeRouter: { canGoBack: () => boolean; back: () => void; replace: (href: string) => void } =
-  {
-    canGoBack: () => true,
-    back: () => {
-      leaves.back?.()
-    },
-    replace: (href: string) => {
-      leaves.replaced.push(href)
-    }
+/** The members the hook calls. A call to any other is a TypeError this probe fails on. */
+const probeRouter: {
+  canGoBack: () => boolean
+  back: () => void
+  replace: (href: string) => void
+  dismissTo: (href: '/') => void
+} = {
+  canGoBack: () => true,
+  back: () => {
+    leaves.back?.()
+  },
+  replace: (href: string) => {
+    leaves.replaced.push(href)
+  },
+  dismissTo: (href) => {
+    leaves.dismissed.push(href)
   }
+}
 
 function scopeWith(markdownDocs: Map<string, MarkdownDocState>): MobileSessionMarkdownActionsScope {
   return {
-    hostId: 'host-1',
     worktreeId: 'wt-1',
     /**
      * SAFETY: expo-router's `Router` carries members this probe has no use for, and the hook calls
-     * exactly the three above. A call to any other is a TypeError this probe fails on rather than
-     * passes through, which is the invariant the assertion stands on.
+     * dismissTo to leave for the host picker. A call to any other is a TypeError this probe fails
+     * on rather than passes through, which is the invariant the assertion stands on.
      */
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: stated above.
     router: probeRouter as unknown as MobileSessionMarkdownActionsScope['router'],
@@ -109,6 +119,7 @@ beforeEach(() => {
   native.dismiss.mockClear()
   leaves.back = null
   leaves.replaced = []
+  leaves.dismissed = []
 })
 
 /**
@@ -129,20 +140,18 @@ describe("the session's hardware back gate", () => {
     expect(native.addEventListener).toHaveBeenCalledTimes(1)
   })
 
-  it('leaves through the router when nothing is dirty', () => {
+  it('leaves to the host picker when nothing is dirty', () => {
     render(new Map())
     const handler = native.addEventListener.mock.calls[0]?.[1]
-    const left = vi.fn()
-    leaves.back = left
     act(() => {
       expect(handler?.()).toBe(true)
     })
-    expect(left).toHaveBeenCalledTimes(1)
+    expect(leaves.dismissed).toEqual(['/'])
     expect(native.dismiss).not.toHaveBeenCalled()
   })
 
   // Why the claim is held while clean: unclaimed at the root, the key would exit the app.
-  it('replaces to the host at the root rather than handing the key on', () => {
+  it('still returns to the host picker when this session is the root route', () => {
     probeRouter.canGoBack = () => false
     try {
       render(new Map())
@@ -150,7 +159,8 @@ describe("the session's hardware back gate", () => {
       act(() => {
         expect(handler?.()).toBe(true)
       })
-      expect(leaves.replaced).toEqual(['/h/host-1'])
+      expect(leaves.dismissed).toEqual(['/'])
+      expect(leaves.replaced).toEqual([])
     } finally {
       probeRouter.canGoBack = () => true
     }

@@ -6,6 +6,17 @@ export const hostScreenPrimaryStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bgBase
   },
+  // Wide sidebar panel. Phone pages keep container + topChrome.
+  sidebarContainer: {
+    flex: 1,
+    backgroundColor: colors.sidebarPanel
+  },
+  sidebarTopChrome: {
+    backgroundColor: 'transparent',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md
+  },
   topChrome: {
     backgroundColor: colors.bgPanel,
     borderBottomWidth: 1,
@@ -34,6 +45,18 @@ export const hostScreenPrimaryStyles = StyleSheet.create({
     borderRadius: radii.button,
     marginLeft: spacing.xs
   },
+  // Embedded sidebar icon buttons: 32pt visual, hitSlop brings the touch target to 44.
+  sidebarIconButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radii.sidebarIcon,
+    backgroundColor: 'transparent'
+  },
+  sidebarIconButtonPressed: {
+    backgroundColor: colors.sidebarIconPressed
+  },
   hostIdentity: {
     flex: 1,
     minWidth: 0,
@@ -51,6 +74,44 @@ export const hostScreenPrimaryStyles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: colors.textPrimary
+  },
+  // Embedded header: host name on the first line, connection words on the second.
+  sidebarHostName: {
+    fontSize: typography.bodySize,
+    fontWeight: '700',
+    color: colors.textPrimary
+  },
+  sidebarConnectionLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs + 2,
+    marginTop: 2,
+    minWidth: 0
+  },
+  sidebarConnectionText: {
+    flexShrink: 1,
+    fontSize: typography.sidebarLabelSize,
+    color: colors.textSecondary
+  },
+  sidebarHostMenu: {
+    marginTop: spacing.xs,
+    borderRadius: radii.sidebarRow,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.sidebarPanel,
+    overflow: 'hidden'
+  },
+  sidebarHostMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    minHeight: 44,
+    paddingHorizontal: spacing.md
+  },
+  sidebarHostMenuText: {
+    flex: 1,
+    color: colors.textPrimary,
+    fontSize: typography.bodySize
   },
   reconnectButton: {
     paddingVertical: 4,
@@ -73,34 +134,6 @@ export const hostScreenPrimaryStyles = StyleSheet.create({
     gap: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderSubtle
-  },
-  embeddedToolbar: {
-    paddingVertical: spacing.xs + 2,
-    paddingHorizontal: spacing.sm,
-    gap: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSubtle
-  },
-  embeddedToolbarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm
-  },
-  embeddedFilterChip: {
-    flex: 1,
-    minWidth: 0,
-    height: 30,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 0
-  },
-  embeddedModeButton: {
-    flex: 1,
-    minWidth: 0,
-    height: 30,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 0
   },
   filterChip: {
     flexDirection: 'row',
@@ -147,13 +180,6 @@ export const hostScreenPrimaryStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: spacing.xs
-  },
-  embeddedToolbarIconButton: {
-    flex: 1,
-    height: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radii.button
   },
   toolbarIconDisabled: {
     opacity: 0.6

@@ -713,6 +713,31 @@ describe('buildSections', () => {
     ])
   })
 
+  it('drops the pinned overlay when the sidebar wants one row per workspace', () => {
+    const pinned = worktree({
+      worktreeId: 'pinned',
+      workspaceStatus: 'in-progress',
+      isPinned: true
+    })
+
+    const sections = buildSections(
+      [pinned],
+      'manual',
+      { filterRepoIds: new Set(), hideSleeping: false, hideDefaultBranch: false },
+      '',
+      'workspaceStatus',
+      new Set(),
+      new Map(),
+      DEFAULT_MOBILE_WORKSPACE_STATUSES,
+      new Set(),
+      false
+    )
+
+    expect(withoutSectionListKeys(sections)).toEqual([
+      { key: 'workspace-status:in-progress', title: 'In progress', data: [pinned] }
+    ])
+  })
+
   it('renders one sorted All section when grouping is off like desktop', () => {
     const inactiveFirst = worktree({
       worktreeId: 'inactive-first',
