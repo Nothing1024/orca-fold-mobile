@@ -21,6 +21,7 @@ function controllerWith(tab: MobileSessionTab): MobileSessionController {
   const controller = {
     hostId: 'host-1',
     worktreeId: 'wt-1',
+    worktreeName: 'narwhal-2',
     activeSessionTabId: 't1',
     connState: 'connected',
     activePanel: null,
@@ -64,6 +65,7 @@ describe('usePublishMobileSessionNav', () => {
       renderer = create(createElement(Probe, { controller }))
     })
     expect(readMobileSessionNav()?.tabs.map((tab) => tab.id)).toEqual(['t1'])
+    expect(readMobileSessionNav()?.workspaceName).toBe('narwhal-2')
     act(() => {
       renderer?.unmount()
     })

@@ -23,12 +23,12 @@ export const mobileSessionRailStyles = StyleSheet.create({
     backgroundColor: colors.bgBase,
     opacity: 0.6
   },
-  // Sits under one workspace row; the border keeps the next workspace out of this block.
-  sessionRailNest: {
-    marginLeft: spacing.lg,
-    marginBottom: spacing.sm,
-    borderLeftWidth: 2,
-    borderLeftColor: colors.borderSubtle
+  sessionPaneTitle: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    color: colors.textPrimary,
+    fontSize: typography.bodySize,
+    fontWeight: '600'
   },
   sessionRailSectionLabel: {
     paddingHorizontal: spacing.sm,

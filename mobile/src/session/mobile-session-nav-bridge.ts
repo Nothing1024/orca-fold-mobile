@@ -7,6 +7,8 @@ import type { MobileSessionTab } from './mobile-session-route-types'
 export type MobileSessionNavSnapshot = {
   hostId: string
   worktreeId: string
+  /** Live workspace label from the open session. Blank hides the pane title. */
+  workspaceName?: string
   activeTabId: string | null
   /** The open tab's view. Chat only while native chat covers that tab. */
   activeTabView: 'terminal' | 'chat'

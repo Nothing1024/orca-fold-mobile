@@ -21,6 +21,7 @@ function navSignature(controller: MobileSessionController): string {
   return [
     controller.hostId,
     controller.worktreeId,
+    controller.worktreeName,
     controller.activeSessionTabId ?? '',
     controller.showNativeChat ? 'chat' : 'terminal',
     controller.connState,
@@ -46,6 +47,7 @@ function snapshotFrom(read: () => MobileSessionController): MobileSessionNavSnap
   return {
     hostId: controller.hostId,
     worktreeId: controller.worktreeId,
+    workspaceName: controller.worktreeName,
     activeTabId: controller.activeSessionTabId,
     activeTabView: controller.showNativeChat ? 'chat' : 'terminal',
     tabs: controller.visibleTabs,
