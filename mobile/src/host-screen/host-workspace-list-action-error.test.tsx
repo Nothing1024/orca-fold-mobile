@@ -2,6 +2,7 @@ import { createElement } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { describe, expect, it, vi } from 'vitest'
 
+vi.mock('expo-router', () => ({ useLocalSearchParams: () => ({}) }))
 vi.mock('react-native', () => ({
   Pressable: 'Pressable',
   RefreshControl: 'RefreshControl',

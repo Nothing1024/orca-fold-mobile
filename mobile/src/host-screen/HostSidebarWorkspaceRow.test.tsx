@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { describe, expect, it, vi } from 'vitest'
-import { colors, radii } from '../theme/mobile-theme'
+import { colors, radii, typography } from '../theme/mobile-theme'
 import { HostSidebarWorkspaceRow } from './HostSidebarWorkspaceRow'
 import type { WorktreeListRowItem } from '../components/WorktreeListRow'
 
@@ -82,6 +82,13 @@ describe('the wide sidebar workspace row', () => {
     expect(tree.root.findAll((node) => typeName(node.type) === 'Pin')).toHaveLength(0)
     expect(tree.root.findAll((node) => typeName(node.type) === 'GitBranch')).toHaveLength(0)
     expect(flat.height).toBe(28)
+    const name = tree.root.findAll((node) => typeName(node.type) === 'Text')[0]
+    expect(name?.props.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ fontSize: typography.sidebarNameSize, fontWeight: '400' })
+      ])
+    )
+    expect(typography.sidebarNameSize).toBe(13)
   })
 
   it('indents a child row and shows only its branch', () => {

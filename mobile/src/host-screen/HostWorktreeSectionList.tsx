@@ -1,4 +1,5 @@
 import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native'
+import { useLocalSearchParams } from 'expo-router'
 import { ChevronDown, ChevronRight, Pin } from 'lucide-react-native'
 import { MobileRepoIcon } from '../components/MobileRepoIcon'
 import { FAB_SIZE } from '../components/NewWorkspaceFab'
@@ -25,6 +26,8 @@ export function HostWorktreeSectionList({
   controller: HostScreenController
   sessionNav: MobileSessionNavSnapshot | null
 }) {
+  // A deep link names the open worktree in the path, with no name parameter.
+  const routeWorktreeId = useLocalSearchParams<{ worktreeId?: string }>().worktreeId
   const {
     actions,
     activeWorktreeScroll,
@@ -145,7 +148,7 @@ export function HostWorktreeSectionList({
       renderItem={({ item }) =>
         embedded ? (
           <HostSidebarWorkspaceRow
-            item={item}
+            item={item.worktreeId === routeWorktreeId ? { ...item, isActive: true } : item}
             isReadOnly={isReadOnly}
             role={clusterRole.get(item.worktreeId) ?? 'standalone'}
             showPin={isWorktreePinned(item, state.pinnedIds)}

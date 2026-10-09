@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   name: {
     flexShrink: 1,
-    fontSize: typography.bodySize,
+    fontSize: typography.sidebarNameSize,
     fontWeight: '400',
     color: colors.textSecondary
   },

@@ -85,5 +85,7 @@ export const typography = {
   monoFamily: 'monospace' as const,
   // Uppercase section labels in the wide sidebar ("WORKSPACES").
   sidebarLabelSize: 11,
+  // Workspace and session names on the wide sidebar. The phone keeps bodySize.
+  sidebarNameSize: 13,
   sidebarLabelTracking: 1
 } as const

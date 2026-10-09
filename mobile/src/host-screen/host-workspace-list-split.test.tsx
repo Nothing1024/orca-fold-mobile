@@ -8,10 +8,16 @@ import { FAB_SIZE } from '../components/NewWorkspaceFab'
 import { childWorktreeTitle, HostWorkspaceList } from './host-workspace-list'
 
 const harness = vi.hoisted(() => {
-  const state: { nav: MobileSessionNavSnapshot | null } = { nav: null }
+  const state: { nav: MobileSessionNavSnapshot | null; worktreeId: string | undefined } = {
+    nav: null,
+    worktreeId: undefined
+  }
   return state
 })
 
+vi.mock('expo-router', () => ({
+  useLocalSearchParams: () => ({ worktreeId: harness.worktreeId })
+}))
 vi.mock('react-native', () => ({
   Pressable: 'Pressable',
   RefreshControl: 'RefreshControl',
@@ -230,6 +236,36 @@ function sessionCount(tree: ReactTestRenderer): number {
 const selected = worktree('wt-a', 'narwhal')
 const following = worktree('wt-b', 'otter')
 const sections = [{ key: 'all', title: '', data: [selected, following] }]
+
+describe('a deep link selects the open worktree row', () => {
+  it('highlights a child row and a main row from the route id alone', () => {
+    const main = worktree('wt-main', 'orca')
+    const child = { ...worktree('wt-child', 'orca'), isMainWorktree: false, branch: 'fix/sidebar' }
+    for (const id of ['wt-child', 'wt-main']) {
+      harness.worktreeId = id
+      const tree = renderList({
+        embedded: true,
+        sections: [{ key: 'repo', title: 'orca', data: [main, child] }],
+        displayWorktrees: [main, child],
+        groupMode: 'repo'
+      })
+      const [list] = named(tree, 'SectionList')
+      if (list === undefined) {
+        throw new Error('expected a worktree list')
+      }
+      const rendered = list.props.sections.flatMap(
+        (section: { data: ReturnType<typeof worktree>[] }) =>
+          section.data.map(
+            (row: ReturnType<typeof worktree>) =>
+              list.props.renderItem({ item: row, index: 0, separators: {} }).props.item
+          )
+      )
+      const selected = rendered.filter((row: ReturnType<typeof worktree>) => row.isActive === true)
+      expect(selected.map((row: ReturnType<typeof worktree>) => row.worktreeId)).toEqual([id])
+    }
+    harness.worktreeId = undefined
+  })
+})
 
 describe('childWorktreeTitle', () => {
   it('uses the branch of a child worktree and ignores a main one', () => {
