@@ -23,7 +23,7 @@ export function HostSidebarWorkspacesHeader({ controller }: { controller: HostSc
           onPress={() => state.setShowSearch((s) => !s)}
           accessibilityRole="button"
           accessibilityLabel={state.showSearch ? 'Close search' : 'Search workspaces'}
-          hitSlop={6}
+          hitSlop={8}
         >
           {state.showSearch ? (
             <X size={ICON} color={colors.textSecondary} />
@@ -43,7 +43,7 @@ export function HostSidebarWorkspacesHeader({ controller }: { controller: HostSc
               : 'Filter, sort, and group'
           }
           accessibilityState={{ expanded: menuOpen }}
-          hitSlop={6}
+          hitSlop={8}
         >
           <Filter size={ICON} color={filterCount > 0 ? colors.textPrimary : colors.textSecondary} />
           {filterCount > 0 ? (
@@ -58,7 +58,7 @@ export function HostSidebarWorkspacesHeader({ controller }: { controller: HostSc
           disabled={disconnected}
           accessibilityRole="button"
           accessibilityLabel="New workspace"
-          hitSlop={6}
+          hitSlop={8}
         >
           <Plus size={ICON} color={disconnected ? colors.textMuted : colors.textSecondary} />
         </Pressable>
@@ -100,14 +100,13 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 44,
-    paddingLeft: spacing.md,
-    paddingRight: spacing.xs,
-    gap: spacing.xs
+    height: 30,
+    paddingHorizontal: spacing.sm,
+    gap: spacing.sm
   },
   label: {
     fontSize: typography.sidebarLabelSize,
-    fontWeight: '600',
+    fontWeight: '400',
     letterSpacing: typography.sidebarLabelTracking,
     color: colors.textMuted
   },
@@ -117,8 +116,8 @@ const styles = StyleSheet.create({
     color: colors.textMuted
   },
   iconButton: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radii.sidebarIcon

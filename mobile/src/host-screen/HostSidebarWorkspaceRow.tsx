@@ -99,9 +99,9 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 9,
+    gap: 5,
     height: 28,
-    marginHorizontal: spacing.sm,
+    marginHorizontal: spacing.md,
     marginTop: 1,
     paddingHorizontal: spacing.sm,
     borderRadius: radii.sidebarRow,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     borderColor: colors.sidebarSelectionBorder
   },
   rowChild: {
-    paddingLeft: 21
+    paddingLeft: 20
   },
   rowPressed: {
     backgroundColor: colors.sidebarIconPressed

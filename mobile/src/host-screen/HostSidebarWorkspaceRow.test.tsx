@@ -90,7 +90,8 @@ describe('the wide sidebar workspace row', () => {
     const branch = tree.root.find((node) => typeName(node.type) === 'GitBranch')
     expect(branch.props.size).toBe(12)
     expect(branch.props.color).toBe(colors.sidebarSelectionText)
-    expect(pressedStyle(tree).paddingLeft).toBe(21)
+    expect(pressedStyle(tree).paddingLeft).toBe(20)
+    expect(pressedStyle(tree).gap).toBe(5)
     expect(pressedStyle(tree).marginTop).toBe(1)
   })
 
