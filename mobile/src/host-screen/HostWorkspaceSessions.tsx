@@ -78,6 +78,20 @@ export function HostWorkspaceSessions({
             {title ? `SESSIONS · ${title}` : 'SESSIONS'}
           </Text>
           <Text style={wide.headingCount}>{nav.tabs.length}</Text>
+          <Pressable
+            style={wide.newSession}
+            disabled={nav.createDisabled}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            onPress={() => {
+              nav.createSession()
+              onActivated?.()
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="New Session"
+            accessibilityState={{ disabled: nav.createDisabled }}
+          >
+            <Plus size={14} color={colors.textMuted} strokeWidth={2.2} />
+          </Pressable>
         </View>
         {nav.tabs.length === 0 ? (
           <Text style={rail.sessionRailConnectionText}>No sessions</Text>
@@ -116,22 +130,6 @@ export function HostWorkspaceSessions({
             )
           })
         )}
-        {nav.tabs.length > 0 ? (
-          <Text style={wide.hint}>长按 session 可切换 Terminal / Chat view</Text>
-        ) : null}
-        <Pressable
-          style={({ pressed }) => [wide.newSession, pressed && rail.sessionRailActionPressed]}
-          disabled={nav.createDisabled}
-          onPress={() => {
-            nav.createSession()
-            onActivated?.()
-          }}
-          accessibilityRole="button"
-          accessibilityLabel="New session"
-        >
-          <Plus size={16} color={colors.textSecondary} strokeWidth={2.2} />
-          <Text style={wide.newSessionText}>New Session</Text>
-        </Pressable>
       </View>
     )
   }
@@ -287,10 +285,10 @@ const wide = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+    height: 28,
     marginHorizontal: spacing.sm,
-    marginVertical: 2,
-    minHeight: 40,
-    paddingHorizontal: 10,
+    marginVertical: 1,
+    paddingHorizontal: spacing.sm,
     borderRadius: radii.sidebarRow,
     borderWidth: 1,
     borderColor: 'transparent'
@@ -315,21 +313,12 @@ const wide = StyleSheet.create({
   rowStatusActive: {
     color: colors.sidebarSelectionText
   },
-  hint: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xs,
-    fontSize: typography.sidebarLabelSize,
-    color: colors.textMuted
-  },
   newSession: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    minHeight: 44,
-    paddingHorizontal: spacing.md
-  },
-  newSessionText: {
-    fontSize: typography.bodySize,
-    color: colors.textSecondary
+    justifyContent: 'center',
+    width: 44,
+    height: 44,
+    marginVertical: -13,
+    marginRight: -10
   }
 })
