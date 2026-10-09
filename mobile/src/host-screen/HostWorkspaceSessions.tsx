@@ -56,14 +56,17 @@ function sessionPaneTitle(nav: MobileSessionNavSnapshot): string {
 export function HostWorkspaceSessions({
   nav,
   onActivated,
-  hideWorkspaceTools = false
+  hideWorkspaceTools = false,
+  titleOverride = null
 }: {
   nav: MobileSessionNavSnapshot
   onActivated?: () => void
   /** Wide sidebar pins these on its own tool row. */
   hideWorkspaceTools?: boolean
+  /** Branch of the open child worktree, resolved from the host catalog. */
+  titleOverride?: string | null
 }) {
-  const title = sessionPaneTitle(nav)
+  const title = titleOverride ?? sessionPaneTitle(nav)
   const statusFor = (tabId: string): string => {
     if (tabId !== nav.activeTabId) {
       return 'idle'
