@@ -112,7 +112,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
     </View>
   ) : null
 
-  const listStates = (
+  const listStates = (wide: boolean) => (
     <HostWorkspaceListStates
       connState={connState}
       worktreesLoaded={state.worktreesLoaded}
@@ -121,6 +121,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
       catalogError={state.catalogError}
       search={state.search}
       activeFilterCount={settings.activeFilterCount}
+      embedded={wide}
     />
   )
 
@@ -133,7 +134,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
           {notices}
           <HostSidebarWorkspacesHeader controller={controller} />
           {searchBar}
-          {listStates}
+          {listStates(true)}
           {worktreeList}
         </View>
         <View style={embeddedSplitStyles.sessionsPane} accessibilityLabel="Sessions">
@@ -171,7 +172,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
     <>
       {notices}
       {searchBar}
-      {listStates}
+      {listStates(false)}
       {detachedSessionNav ? (
         <View style={styles.list}>
           {isFloatingWorkspaceWorktreeId(detachedSessionNav.worktreeId) ? (

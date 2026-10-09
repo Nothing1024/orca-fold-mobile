@@ -9,19 +9,22 @@ export function HostWorkspaceListStates(
   props: HostWorkspaceListStateInput & {
     search: string
     activeFilterCount: number
+    /** Wide sidebar sizes the note to its text. The phone keeps it vertically centered. */
+    embedded?: boolean
   }
 ) {
   const state = selectHostWorkspaceListState(props)
+  const box = props.embedded ? styles.inline : styles.centered
   if (state === 'loading') {
     return (
-      <View style={styles.centered}>
+      <View style={box}>
         <ActivityIndicator size="small" color={colors.textSecondary} />
       </View>
     )
   }
   if (state === 'catalog-error') {
     return (
-      <View style={styles.centered}>
+      <View style={box}>
         <Text style={styles.emptyText}>Could not load workspaces from this host</Text>
         <Text style={styles.catalogErrorDetail}>
           {`worktree.ps failed (${props.catalogError}) — retrying automatically`}
@@ -31,7 +34,7 @@ export function HostWorkspaceListStates(
   }
   if (state === 'empty') {
     return (
-      <View style={styles.centered}>
+      <View style={box}>
         <Text style={styles.emptyText}>
           {props.search
             ? 'No matching worktrees'
@@ -47,6 +50,11 @@ export function HostWorkspaceListStates(
 
 const styles = StyleSheet.create({
   centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  inline: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.lg
