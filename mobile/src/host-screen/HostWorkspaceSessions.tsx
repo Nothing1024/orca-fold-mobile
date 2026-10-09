@@ -286,7 +286,7 @@ const wide = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     height: 28,
-    marginHorizontal: spacing.sm,
+    marginHorizontal: spacing.xs,
     marginTop: 1,
     paddingHorizontal: spacing.sm,
     borderRadius: radii.sidebarRow,
