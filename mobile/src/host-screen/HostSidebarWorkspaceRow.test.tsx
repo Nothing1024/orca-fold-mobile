@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { describe, expect, it, vi } from 'vitest'
 import { colors, radii, typography } from '../theme/mobile-theme'
-import { HostSidebarWorkspaceRow, sidebarRowMeta } from './HostSidebarWorkspaceRow'
+import { HostSidebarWorkspaceRow, sidebarRowMeta, sidebarRowName } from './HostSidebarWorkspaceRow'
 import type { WorktreeListRowItem } from '../components/WorktreeListRow'
 
 vi.mock('react-native', () => ({
@@ -17,9 +17,11 @@ vi.mock('../platform/haptics', () => ({ triggerMediumImpact: vi.fn() }))
 function item(overrides: Partial<WorktreeListRowItem> = {}): WorktreeListRowItem {
   return {
     worktreeId: 'wt-1',
-    repo: 'orca',
+    repo: 'orca-mobile',
     branch: 'refs/heads/feature/sidebar',
-    displayName: 'orca-mobile',
+    // Like the desktop host: an unrenamed worktree's displayName is its branch.
+    displayName: 'feature/sidebar',
+    isMainWorktree: true,
     liveTerminalCount: 3,
     preview: '',
     unread: false,
@@ -70,7 +72,7 @@ function texts(tree: ReactTestRenderer): string[] {
 }
 
 describe('the wide sidebar workspace row', () => {
-  it('selects with the blue fill and border, and hides the phone-row chrome', () => {
+  it('selects with the blue fill and border, and names a main row by its repo only', () => {
     const tree = render({ isActive: true, unread: true })
     const flat = pressedStyle(tree)
     expect(flat).toMatchObject({
@@ -78,7 +80,7 @@ describe('the wide sidebar workspace row', () => {
       backgroundColor: colors.sidebarSelectionFill,
       borderColor: colors.sidebarSelectionBorder
     })
-    expect(texts(tree)).toEqual(['orca-mobile', 'feature/sidebar', '3'])
+    expect(texts(tree)).toEqual(['orca-mobile', '3'])
     expect(tree.root.findAll((node) => typeName(node.type) === 'Pin')).toHaveLength(0)
     expect(tree.root.findAll((node) => typeName(node.type) === 'GitBranch')).toHaveLength(0)
     expect(flat.height).toBe(28)
@@ -91,8 +93,30 @@ describe('the wide sidebar workspace row', () => {
     expect(typography.sidebarNameSize).toBe(13)
   })
 
+  it('tells repos apart when every main worktree is on main', () => {
+    const rows = ['dsh-vibee', 'orca-mobile', 'hermes-plugin'].map((repo) =>
+      texts(render({ repo, displayName: 'main', branch: 'refs/heads/main' }))
+    )
+    expect(rows).toEqual([
+      ['dsh-vibee', '3'],
+      ['orca-mobile', '3'],
+      ['hermes-plugin', '3']
+    ])
+  })
+
+  it('shows only the repo even when the worktree was renamed', () => {
+    expect(texts(render({ displayName: 'my sidebar work', branch: 'refs/heads/feat/x' }))).toEqual([
+      'orca-mobile',
+      '3'
+    ])
+  })
+
   it('indents a child row and shows only its branch', () => {
-    const tree = render({ isActive: true, liveTerminalCount: 1 }, false, 'child')
+    const tree = render(
+      { isActive: true, liveTerminalCount: 1, isMainWorktree: false },
+      false,
+      'child'
+    )
     expect(texts(tree)).toEqual(['feature/sidebar', '1'])
     const branch = tree.root.find((node) => typeName(node.type) === 'GitBranch')
     expect(branch.props.size).toBe(12)
@@ -102,57 +126,51 @@ describe('the wide sidebar workspace row', () => {
     expect(pressedStyle(tree).marginTop).toBe(1)
   })
 
-  it('drops a zero session count and shows the pin', () => {
-    const tree = render({ liveTerminalCount: 0, isActive: false }, true)
-    expect(texts(tree)).toEqual(['orca-mobile', 'feature/sidebar'])
-    expect(tree.root.findAll((node) => typeName(node.type) === 'Pin')).toHaveLength(1)
-    const flat = pressedStyle(tree)
-    expect(flat.backgroundColor).toBeUndefined()
-    expect(flat.borderColor).toBe('transparent')
-  })
-
-  it('keeps the name ahead of a long branch, which truncates instead', () => {
+  it('keeps the branch beside the repo for a worktree shown outside its tree', () => {
     const tree = render({
+      isMainWorktree: false,
       isActive: true,
-      displayName: 'orca-mobile',
-      branch: 'refs/heads/feat/merged-workspace-session-nav'
+      branch: 'refs/heads/feat/merged-workspace-session-nav',
+      displayName: 'feat/merged-workspace-session-nav'
     })
     expect(texts(tree)).toEqual(['orca-mobile', 'feat/merged-workspace-session-nav', '3'])
     const [name, branch, count] = tree.root.findAll((node) => typeName(node.type) === 'Text')
     const flat = (node: typeof name): Record<string, unknown> =>
       Object.assign({}, ...[node?.props.style].flat().filter(Boolean))
     expect(flat(name)).toMatchObject({ flexShrink: 0, maxWidth: '60%' })
-    expect(name?.props.numberOfLines).toBe(1)
     expect(flat(branch)).toMatchObject({ flexShrink: 1, minWidth: 0 })
-    expect(branch?.props.numberOfLines).toBe(1)
     expect(flat(count).flexShrink).toBeUndefined()
   })
 
-  it('hides the branch when it repeats the name', () => {
-    const alone = render({
-      displayName: 'feat/merged-workspace-session-nav',
-      branch: 'refs/heads/feat/merged-workspace-session-nav'
+  it('keeps a folder workspace on its own label', () => {
+    const tree = render({
+      workspaceKind: 'folder-workspace',
+      repo: 'session-tool',
+      displayName: 'session-tool',
+      branch: '',
+      path: '/home/u/session-tool',
+      liveTerminalCount: 1
     })
-    expect(texts(alone)).toEqual(['feat/merged-workspace-session-nav', '3'])
-    const nameStyle = Object.assign(
-      {},
-      ...[alone.root.findAll((node) => typeName(node.type) === 'Text')[0]?.props.style]
-        .flat()
-        .filter(Boolean)
-    )
-    // Alone on the row, the name may use the whole width.
-    expect(nameStyle).toMatchObject({ flexShrink: 1, minWidth: 0 })
-    expect(nameStyle.maxWidth).toBeUndefined()
-    expect(texts(render({ displayName: 'main', branch: 'refs/heads/main' }))).toEqual(['main', '3'])
-    expect(
-      texts(render({ displayName: 'feat/x', branch: 'refs/heads/feat/x', isActive: true }))
-    ).toEqual(['feat/x', '3'])
-    expect(texts(render({ displayName: '', repo: 'main', branch: 'main' }))).toEqual(['main', '3'])
+    expect(texts(tree)).toEqual(['session-tool', '/home/u/session-tool', '1'])
   })
 
-  it('keeps a child row on its branch even when it matches the name', () => {
-    const tree = render({ displayName: 'main', branch: 'refs/heads/main' }, false, 'child')
-    expect(texts(tree)).toEqual(['main', '3'])
+  it('drops a zero session count and shows the pin', () => {
+    const tree = render({ liveTerminalCount: 0, isActive: false }, true)
+    expect(texts(tree)).toEqual(['orca-mobile'])
+    expect(tree.root.findAll((node) => typeName(node.type) === 'Pin')).toHaveLength(1)
+    const flat = pressedStyle(tree)
+    expect(flat.backgroundColor).toBeUndefined()
+    expect(flat.borderColor).toBe('transparent')
+  })
+})
+
+describe('sidebarRowName', () => {
+  it('uses the repo for git rows and the label for folder workspaces', () => {
+    expect(sidebarRowName({ repo: 'orca-mobile', displayName: 'main' })).toBe('orca-mobile')
+    expect(sidebarRowName({ repo: '', displayName: 'main' })).toBe('main')
+    expect(
+      sidebarRowName({ workspaceKind: 'folder-workspace', repo: 'notes', displayName: 'Notes' })
+    ).toBe('Notes')
   })
 })
 

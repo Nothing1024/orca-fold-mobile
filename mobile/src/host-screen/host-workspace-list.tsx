@@ -152,7 +152,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
               <HostWorkspaceSessions
                 nav={embeddedSessionNav}
                 hideWorkspaceTools
-                titleOverride={childWorktreeTitle(state.worktrees, embeddedSessionNav.worktreeId)}
+                titleOverride={sidebarSessionsTitle(state.worktrees, embeddedSessionNav.worktreeId)}
                 onActivated={actions.onWorkspaceActivated}
               />
             </ScrollView>
@@ -194,16 +194,29 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
   )
 }
 
-/** A child worktree's session pane is titled with its branch, even after a reload. */
-export function childWorktreeTitle(
-  worktrees: readonly { worktreeId: string; branch: string; isMainWorktree?: boolean }[],
+/**
+ * Wide session pane title, matching the sidebar row: a child worktree shows its
+ * branch, a repo's main worktree shows the repo. Null keeps the nav's own name
+ * (folder workspaces, rows not in the catalog yet).
+ */
+export function sidebarSessionsTitle(
+  worktrees: readonly {
+    worktreeId: string
+    branch: string
+    repo: string
+    isMainWorktree?: boolean
+    workspaceKind?: 'git' | 'folder-workspace'
+  }[],
   worktreeId: string
 ): string | null {
   const match = worktrees.find((worktree) => worktree.worktreeId === worktreeId)
-  if (match?.isMainWorktree !== false) {
+  if (!match || match.workspaceKind === 'folder-workspace') {
     return null
   }
-  return match.branch.replace(/^refs\/heads\//, '')
+  if (match.isMainWorktree === false) {
+    return match.branch.replace(/^refs\/heads\//, '')
+  }
+  return match.repo || null
 }
 
 const embeddedSplitStyles = StyleSheet.create({
